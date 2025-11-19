@@ -18,9 +18,9 @@
 
     <section class="hero" id="home">
       <div class="hero-content">
-        <img 
-          src="https://media.istockphoto.com/id/1325602124/pt/foto/beach-volleyball-court-with-a-volleyball-ball-placed-in-the-sand.jpg?b=1&s=612x612&w=0&k=20&c=8KaviRau22VOBUZWPubuQDpNbRI7tzRcs2YKdj_QQR0=" 
-          alt="Beach Tennis Court" 
+        <img
+          src="https://media.istockphoto.com/id/1325602124/pt/foto/beach-volleyball-court-with-a-volleyball-ball-placed-in-the-sand.jpg?b=1&s=612x612&w=0&k=20&c=8KaviRau22VOBUZWPubuQDpNbRI7tzRcs2YKdj_QQR0="
+          alt="Beach Tennis Court"
           class="hero-image"
         >
         <div class="hero-text">
@@ -34,13 +34,13 @@
     <section class="carousel-section" id="quadras">
       <div class="carousel-container">
         <h2 class="section-title">Nossas Quadras</h2>
-        
+
         <div class="products-carousel">
           <div class="products-grid">
-            <div 
-              class="product-card" 
-              v-for="(court, index) in courts" 
-              :key="index" 
+            <div
+              class="product-card"
+              v-for="(court, index) in courts"
+              :key="index"
               @click="openModal(court)"
             >
               <span class="product-badge" v-if="court.discount">{{ court.discount }}</span>
@@ -59,7 +59,7 @@
     <div class="modal-overlay" v-if="selectedCourt" @click.self="closeModal">
       <div class="modal-content">
         <button class="modal-close" @click="closeModal">×</button>
-        
+
         <div class="modal-images">
           <img :src="selectedCourt.image" :alt="selectedCourt.title" class="modal-main-image">
           <img :src="selectedCourt.image2" :alt="selectedCourt.title" class="modal-main-image">
@@ -116,7 +116,7 @@ export default {
       },
       courts: [
         {
-          title: 'Quadra Premium',
+          title: 'Quadra azul escuro',
           price: 'R$ 120/hora',
           rating: '4.9',
           discount: '-15%',
