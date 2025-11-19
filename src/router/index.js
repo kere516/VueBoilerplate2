@@ -1,23 +1,45 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import LoginView from '../views/LoginView.vue'
+import RegisterView from '../views/RegisterView.vue'
+import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: () => import('@/views/dashboard.vue'),
+      redirect: '/login'
     },
     {
-      path: '/tutors',
-      children: [
-        { path: '', component: () => import('@/views/tutors/index.vue')},
-        { path: 'add', name: 'tutors.add', component: () => import('@/views/tutors/add.vue')},
-        { path: ':id/edit', component: () => import('@/views/tutors/edit.vue')},
-        { path: ':id/show', component: () => import('@/views/tutors/show.vue')},
-      ]
+      path: '/login',
+      name: 'login',
+      component: LoginView
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView
+    },
+    {
+      path: '/home',
+      name: 'home',
+      component: HomeView,
+      meta: { requiresAuth: true }
     }
-  ],
+  ]
+})
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+  
+  if (to.meta.requiresAuth && !token) {
+    alert('Você precisa estar logado para acessar essa página')
+    next('/login')
+  } else if ((to.name === 'login' || to.name === 'register') && token) {
+    next('/home')
+  } else {
+    next()
+  }
 })
 
 export default router
