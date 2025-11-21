@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="currentUser" class="home-page">
     <header>
       <nav>
         <div class="logo">🏖️ BEACH TIME</div>
@@ -10,17 +10,17 @@
           <li><a @click="scrollToSection('contato')">Contato</a></li>
         </ul>
         <div class="nav-actions">
-          <span class="user-name">Olá {{ userLogado.nome }}</span>
-          <button class="btn-primary" @click="sair">Sair</button>
+          <span class="user-name">👤 {{ currentUser.name }}</span>
+          <button class="btn-logout" @click="handleLogout">Deslogar</button>
         </div>
       </nav>
     </header>
 
     <section class="hero" id="home">
       <div class="hero-content">
-        <img
-          src="https://media.istockphoto.com/id/1325602124/pt/foto/beach-volleyball-court-with-a-volleyball-ball-placed-in-the-sand.jpg?b=1&s=612x612&w=0&k=20&c=8KaviRau22VOBUZWPubuQDpNbRI7tzRcs2YKdj_QQR0="
-          alt="Beach Tennis Court"
+        <img 
+          src="https://media.istockphoto.com/id/1325602124/pt/foto/beach-volleyball-court-with-a-volleyball-ball-placed-in-the-sand.jpg?b=1&s=612x612&w=0&k=20&c=8KaviRau22VOBUZWPubuQDpNbRI7tzRcs2YKdj_QQR0=" 
+          alt="Beach Court" 
           class="hero-image"
         >
         <div class="hero-text">
@@ -34,32 +34,30 @@
     <section class="carousel-section" id="quadras">
       <div class="carousel-container">
         <h2 class="section-title">Nossas Quadras</h2>
-
-        <div class="products-carousel">
-          <div class="products-grid">
-            <div
-              class="product-card"
-              v-for="(court, index) in courts"
-              :key="index"
-              @click="openModal(court)"
-            >
-              <span class="product-badge" v-if="court.discount">{{ court.discount }}</span>
-              <img :src="court.image" :alt="court.title" class="product-image">
-              <div class="product-info">
-                <h3 class="product-title">{{ court.title }}</h3>
-                <p class="product-dimensions">16 x 8 metros</p>
-              </div>
+        
+        <div class="products-grid">
+          <div 
+            class="product-card" 
+            v-for="(court, index) in courts" 
+            :key="index" 
+            @click="openModal(court)"
+          >
+            <span class="product-badge" v-if="court.discount">{{ court.discount }}</span>
+            <img :src="court.image" :alt="court.title" class="product-image">
+            <div class="product-info">
+              <h3 class="product-title">{{ court.title }}</h3>
+              <p class="product-dimensions">16 x 8 metros</p>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Modal de Detalhes -->
+    <!-- Modal -->
     <div class="modal-overlay" v-if="selectedCourt" @click.self="closeModal">
       <div class="modal-content">
         <button class="modal-close" @click="closeModal">×</button>
-
+        
         <div class="modal-images">
           <img :src="selectedCourt.image" :alt="selectedCourt.title" class="modal-main-image">
           <img :src="selectedCourt.image2" :alt="selectedCourt.title" class="modal-main-image">
@@ -97,7 +95,7 @@
     </section>
 
     <footer id="contato">
-      <p>&copy; 2024 Beach Tennis Courts. Todos os direitos reservados.</p>
+      <p>&copy; 2024 Beach Time. Todos os direitos reservados.</p>
     </footer>
   </div>
 </template>
@@ -107,7 +105,7 @@ export default {
   name: 'HomeView',
   data() {
     return {
-      userLogado: {},
+      currentUser: null,
       selectedCourt: null,
       hero: {
         title: 'Quadras',
@@ -116,7 +114,7 @@ export default {
       },
       courts: [
         {
-          title: 'Quadra azul escuro',
+          title: 'Quadra Premium',
           price: 'R$ 120/hora',
           rating: '4.9',
           discount: '-15%',
@@ -195,36 +193,46 @@ export default {
       ]
     }
   },
+
   mounted() {
-    const userLogadoJSON = localStorage.getItem('userLogado');
-    if (userLogadoJSON) {
-      this.userLogado = JSON.parse(userLogadoJSON);
+    const userJSON = localStorage.getItem('beachtime_currentUser')
+    if (userJSON) {
+      this.currentUser = JSON.parse(userJSON)
+    } else {
+      this.$router.push('/auth')
     }
   },
+
   methods: {
     openModal(court) {
-      this.selectedCourt = court;
-      document.body.style.overflow = 'hidden';
+      this.selectedCourt = court
+      document.body.style.overflow = 'hidden'
     },
+
     closeModal() {
-      this.selectedCourt = null;
-      document.body.style.overflow = 'auto';
+      this.selectedCourt = null
+      document.body.style.overflow = 'auto'
     },
+
     contactWhatsApp(court) {
-      const message = `Olá! Gostaria de saber sobre valores e formas de pagamento.`;
-      const url = `https://wa.me/${court.whatsapp}?text=${encodeURIComponent(message)}`;
-      window.open(url, '_blank');
+      const userName = this.currentUser ? this.currentUser.name : 'Visitante'
+      const message = `Olá! Meu nome é ${userName} e gostaria de saber sobre valores e formas de pagamento para a ${court.title}.`
+      const url = `https://wa.me/${court.whatsapp}?text=${encodeURIComponent(message)}`
+      window.open(url, '_blank')
     },
+
     scrollToSection(sectionId) {
-      const element = document.getElementById(sectionId);
+      const element = document.getElementById(sectionId)
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        element.scrollIntoView({ behavior: 'smooth' })
       }
     },
-    sair() {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userLogado');
-      this.$router.push('/login');
+
+    handleLogout() {
+      if (confirm('Deseja realmente deslogar?')) {
+        localStorage.removeItem('beachtime_currentUser')
+        this.$router.push('/auth')
+      }
     }
   }
 }
@@ -235,6 +243,11 @@ export default {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+.home-page {
+  width: 100%;
+  min-height: 100vh;
 }
 
 header {
@@ -277,13 +290,11 @@ nav {
   text-decoration: none;
   font-size: 0.95rem;
   transition: all 0.3s;
-  letter-spacing: 0.5px;
   cursor: pointer;
 }
 
 .nav-links a:hover {
   color: #ff9933;
-  transform: translateY(-2px);
 }
 
 .nav-actions {
@@ -293,26 +304,25 @@ nav {
 }
 
 .user-name {
-  color: #b8b8b8;
+  color: #ff9933;
+  font-weight: 600;
   font-size: 0.95rem;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #ff9933 0%, #ff8800 100%);
-  color: white;
-  padding: 0.7rem 1.8rem;
-  border: none;
+.btn-logout {
+  background: transparent;
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+  padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: 600;
-  transition: transform 0.3s, box-shadow 0.3s;
-  box-shadow: 0 4px 15px rgba(255, 153, 51, 0.3);
+  font-size: 0.85rem;
+  transition: all 0.3s;
 }
 
-.btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 25px rgba(255, 153, 51, 0.5);
-  background: linear-gradient(135deg, #ffb366 0%, #ff9933 100%);
+.btn-logout:hover {
+  background: #ff6b6b;
+  color: white;
 }
 
 .hero {
@@ -331,10 +341,6 @@ nav {
   align-items: center;
 }
 
-.hero-text {
-  text-align: center;
-}
-
 .hero-image {
   width: 100%;
   height: 450px;
@@ -348,8 +354,6 @@ h1 {
   margin-bottom: 1.5rem;
   color: #1a1a1a;
   font-weight: 700;
-  letter-spacing: -1px;
-  text-align: center;
 }
 
 .subtitle {
@@ -357,19 +361,16 @@ h1 {
   color: #ff9933;
   margin-bottom: 2rem;
   font-weight: 600;
-  text-align: center;
 }
 
 .lorem-text {
   font-size: 1.05rem;
   line-height: 1.8;
-  color: #666666;
-  margin-bottom: 3rem;
+  color: #666;
   text-align: justify;
 }
 
 .carousel-section {
-  background: transparent;
   padding: 4rem 0;
   margin-top: 3rem;
 }
@@ -388,16 +389,10 @@ h1 {
   font-weight: 700;
 }
 
-.products-carousel {
-  position: relative;
-  padding: 0 3rem;
-}
-
 .products-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
-  transition: transform 0.5s ease;
 }
 
 .product-card {
@@ -447,7 +442,6 @@ h1 {
 .product-dimensions {
   font-size: 0.95rem;
   color: #666;
-  font-weight: 500;
 }
 
 .modal-overlay {
@@ -533,13 +527,11 @@ h1 {
 
 .modal-features ul {
   list-style: none;
-  padding: 0;
 }
 
 .modal-features li {
   padding: 0.5rem 0;
   color: #666;
-  font-size: 1rem;
 }
 
 .modal-features li:before {
@@ -580,7 +572,6 @@ h1 {
 
 .whatsapp-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 25px rgba(37, 211, 102, 0.5);
   background: #20BA5A;
 }
 
@@ -598,8 +589,8 @@ h1 {
   padding: 2.5rem;
   border-radius: 8px;
   text-align: center;
-  transition: transform 0.3s, box-shadow 0.3s;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s;
 }
 
 .feature-card:hover {
@@ -620,7 +611,7 @@ h1 {
 }
 
 .feature-description {
-  color: #666666;
+  color: #666;
   line-height: 1.6;
 }
 
@@ -634,7 +625,6 @@ footer {
 
 footer p {
   color: #b8b8b8;
-  font-size: 0.95rem;
 }
 
 @media (max-width: 1200px) {
@@ -654,7 +644,6 @@ footer p {
 
   .hero-content {
     grid-template-columns: 1fr;
-    gap: 2rem;
   }
 
   .hero-image {

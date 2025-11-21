@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginView from '../views/LoginView.vue'
-import RegisterView from '../views/RegisterView.vue'
+import AuthView from '../views/AuthView.vue'
 import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
@@ -8,17 +7,12 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/login'
+      redirect: '/auth'
     },
     {
-      path: '/login',
-      name: 'login',
-      component: LoginView
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: RegisterView
+      path: '/auth',
+      name: 'auth',
+      component: AuthView
     },
     {
       path: '/home',
@@ -30,12 +24,12 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token')
+  const currentUser = localStorage.getItem('beachtime_currentUser')
   
-  if (to.meta.requiresAuth && !token) {
+  if (to.meta.requiresAuth && !currentUser) {
     alert('Você precisa estar logado para acessar essa página')
-    next('/login')
-  } else if ((to.name === 'login' || to.name === 'register') && token) {
+    next('/auth')
+  } else if (to.path === '/auth' && currentUser) {
     next('/home')
   } else {
     next()
