@@ -1,23 +1,39 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import AuthView from '../views/AuthView.vue'
+import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: () => import('@/views/dashboard.vue'),
+      redirect: '/auth'
     },
     {
-      path: '/tutors',
-      children: [
-        { path: '', component: () => import('@/views/tutors/index.vue')},
-        { path: 'add', name: 'tutors.add', component: () => import('@/views/tutors/add.vue')},
-        { path: ':id/edit', component: () => import('@/views/tutors/edit.vue')},
-        { path: ':id/show', component: () => import('@/views/tutors/show.vue')},
-      ]
+      path: '/auth',
+      name: 'auth',
+      component: AuthView
+    },
+    {
+      path: '/home',
+      name: 'home',
+      component: HomeView,
+      meta: { requiresAuth: true }
     }
-  ],
+  ]
+})
+
+router.beforeEach((to, from, next) => {
+  const currentUser = localStorage.getItem('beachtime_currentUser')
+  
+  if (to.meta.requiresAuth && !currentUser) {
+    alert('Você precisa estar logado para acessar essa página')
+    next('/auth')
+  } else if (to.path === '/auth' && currentUser) {
+    next('/home')
+  } else {
+    next()
+  }
 })
 
 export default router
