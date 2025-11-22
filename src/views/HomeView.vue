@@ -857,7 +857,6 @@ footer p {
   .products-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-
   .menu-card {
     min-width: 33.333%;
   }
@@ -882,6 +881,49 @@ footer p {
 
   .products-grid {
     grid-template-columns: 1fr;
+  }
+
+  .carousel-wrapper {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .carousel-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .carousel-btn.prev,
+  .carousel-btn.next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+
+  .carousel-btn.prev {
+    left: -10px;
+  }
+
+  .carousel-btn.next {
+    right: -10px;
+  }
+
+  .menu-carousel {
+    width: 100%;
+    padding: 1.5rem 1rem;
+  }
+
+  .menu-card {
+    min-width: 100%;
+    margin: 0 0.25rem;
+  }
+
+  .menu-intro {
+    font-size: 0.95rem;
+    padding: 0 1rem;
+    margin-bottom: 2rem;
   }
 
   .carousel-wrapper {
