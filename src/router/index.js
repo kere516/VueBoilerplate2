@@ -24,12 +24,11 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const currentUser = localStorage.getItem('beachtime_currentUser')
-  
-  if (to.meta.requiresAuth && !currentUser) {
-    alert('Você precisa estar logado para acessar essa página')
+  const token = localStorage.getItem('token')
+
+  if (to.meta.requiresAuth && !token) {
     next('/auth')
-  } else if (to.path === '/auth' && currentUser) {
+  } else if (to.name === 'auth' && token) {
     next('/home')
   } else {
     next()

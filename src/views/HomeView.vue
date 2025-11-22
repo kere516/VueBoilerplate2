@@ -6,7 +6,7 @@
         <ul class="nav-links">
           <li><a @click="scrollToSection('home')">Início</a></li>
           <li><a @click="scrollToSection('quadras')">Quadras</a></li>
-          <li><a @click="scrollToSection('horarios')">Horários</a></li>
+          <li><a @click="scrollToSection('cardapio')">Cardápio</a></li>
           <li><a @click="scrollToSection('contato')">Contato</a></li>
         </ul>
         <div class="nav-actions">
@@ -18,9 +18,9 @@
 
     <section class="hero" id="home">
       <div class="hero-content">
-        <img 
-          src="https://media.istockphoto.com/id/1325602124/pt/foto/beach-volleyball-court-with-a-volleyball-ball-placed-in-the-sand.jpg?b=1&s=612x612&w=0&k=20&c=8KaviRau22VOBUZWPubuQDpNbRI7tzRcs2YKdj_QQR0=" 
-          alt="Beach Court" 
+        <img
+          src="https://media.istockphoto.com/id/1325602124/pt/foto/beach-volleyball-court-with-a-volleyball-ball-placed-in-the-sand.jpg?b=1&s=612x612&w=0&k=20&c=8KaviRau22VOBUZWPubuQDpNbRI7tzRcs2YKdj_QQR0="
+          alt="Beach Court"
           class="hero-image"
         >
         <div class="hero-text">
@@ -34,12 +34,12 @@
     <section class="carousel-section" id="quadras">
       <div class="carousel-container">
         <h2 class="section-title">Nossas Quadras</h2>
-        
+
         <div class="products-grid">
-          <div 
-            class="product-card" 
-            v-for="(court, index) in courts" 
-            :key="index" 
+          <div
+            class="product-card"
+            v-for="(court, index) in courts"
+            :key="index"
             @click="openModal(court)"
           >
             <span class="product-badge" v-if="court.discount">{{ court.discount }}</span>
@@ -53,11 +53,10 @@
       </div>
     </section>
 
-    <!-- Modal -->
     <div class="modal-overlay" v-if="selectedCourt" @click.self="closeModal">
       <div class="modal-content">
         <button class="modal-close" @click="closeModal">×</button>
-        
+
         <div class="modal-images">
           <img :src="selectedCourt.image" :alt="selectedCourt.title" class="modal-main-image">
           <img :src="selectedCourt.image2" :alt="selectedCourt.title" class="modal-main-image">
@@ -86,11 +85,49 @@
       </div>
     </div>
 
-    <section class="features" id="horarios">
-      <div class="feature-card" v-for="(feature, index) in features" :key="index">
-        <div class="feature-icon">{{ feature.icon }}</div>
-        <h3 class="feature-title">{{ feature.title }}</h3>
-        <p class="feature-description">{{ feature.description }}</p>
+    <section class="menu-section" id="cardapio">
+      <div class="menu-container">
+        <h2 class="section-title">Nosso Cardápio</h2>
+        <p class="menu-intro">
+          Aproveite o melhor da gastronomia enquanto se diverte! Nosso cardápio foi
+          cuidadosamente elaborado para oferecer opções deliciosas que combinam perfeitamente
+          com um dia de esportes e diversão.
+        </p>
+
+        <div class="carousel-wrapper">
+          <button class="carousel-btn prev" @click="prevSlide" :disabled="currentSlide === 0">
+            ‹
+          </button>
+
+          <div class="menu-carousel">
+            <div
+              class="menu-carousel-track"
+              :style="{ transform: `translateX(-${currentSlide * slideWidth}%)` }"
+            >
+              <div class="menu-card" v-for="(item, index) in menuItems" :key="index">
+                <img :src="item.image" :alt="item.name" class="menu-image">
+                <div class="menu-info">
+                  <h3 class="menu-item-name">{{ item.name }}</h3>
+                  <p class="menu-item-price">{{ item.price }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="carousel-btn next" @click="nextSlide" :disabled="currentSlide >= maxSlide">
+            ›
+          </button>
+        </div>
+
+        <div class="carousel-dots">
+          <span
+            v-for="(dot, index) in totalDots"
+            :key="index"
+            class="dot"
+            :class="{ active: index === currentSlide }"
+            @click="goToSlide(index)"
+          ></span>
+        </div>
       </div>
     </section>
 
@@ -107,6 +144,8 @@ export default {
     return {
       currentUser: null,
       selectedCourt: null,
+      currentSlide: 0,
+      itemsPerSlide: 4,
       hero: {
         title: 'Quadras',
         subtitle: 'Onde o esporte encontra o estilo de vida',
@@ -174,36 +213,103 @@ export default {
           whatsapp: '5586995797982'
         }
       ],
-      features: [
+      menuItems: [
         {
-          icon: '🎾',
-          title: 'Quadras Profissionais',
-          description: 'Estrutura para competições com areia de alta qualidade'
+          name: 'X-Burguer',
+          price: 'R$ 15.90',
+          image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop'
         },
         {
-          icon: '⚡',
-          title: 'Iluminação Premium',
-          description: 'Sistema LED de última geração para jogos noturnos perfeitos'
+          name: 'X-Bacon',
+          price: 'R$ 18.90',
+          image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&h=400&fit=crop'
         },
         {
-          icon: '📱',
-          title: 'Reserva Online',
-          description: 'Sistemas inteligentes de agendamento disponível 24/7'
+          name: 'X-Salada',
+          price: 'R$ 14.90',
+          image: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400&h=400&fit=crop'
+        },
+        {
+          name: 'Batata Frita',
+          price: 'R$ 8.90',
+          image: 'https://images.unsplash.com/photo-1576107232684-1279f390859f?w=400&h=400&fit=crop'
+        },
+        {
+          name: 'Hot Dog',
+          price: 'R$ 10.90',
+          image: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=400&h=400&fit=crop'
+        },
+        {
+          name: 'Pizza',
+          price: 'R$ 35.90',
+          image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=400&fit=crop'
+        },
+        {
+          name: 'Refrigerante',
+          price: 'R$ 5.00',
+          image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&h=400&fit=crop'
+        },
+        {
+          name: 'Suco Natural',
+          price: 'R$ 8.00',
+          image: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=400&fit=crop'
+        },
+        {
+          name: 'Água Mineral',
+          price: 'R$ 3.50',
+          image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=400&fit=crop'
         }
       ]
     }
   },
 
-  mounted() {
-    const userJSON = localStorage.getItem('beachtime_currentUser')
-    if (userJSON) {
-      this.currentUser = JSON.parse(userJSON)
-    } else {
-      this.$router.push('/auth')
+  computed: {
+    slideWidth() {
+      return 100 / this.itemsPerSlide
+    },
+    maxSlide() {
+      return Math.ceil(this.menuItems.length / this.itemsPerSlide) - 1
+    },
+    totalDots() {
+      return this.maxSlide + 1
     }
   },
 
+  mounted() {
+    this.verifyAuth()
+  },
+
   methods: {
+    async verifyAuth() {
+      const token = localStorage.getItem('token')
+
+      if (!token) {
+        this.$router.push('/auth')
+        return
+      }
+
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/verify', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error('Token inválido')
+        }
+
+        const data = await response.json()
+        this.currentUser = data.user
+
+      } catch {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        this.$router.push('/auth')
+      }
+    },
+
     openModal(court) {
       this.selectedCourt = court
       document.body.style.overflow = 'hidden'
@@ -230,9 +336,26 @@ export default {
 
     handleLogout() {
       if (confirm('Deseja realmente deslogar?')) {
-        localStorage.removeItem('beachtime_currentUser')
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
         this.$router.push('/auth')
       }
+    },
+
+    nextSlide() {
+      if (this.currentSlide < this.maxSlide) {
+        this.currentSlide++
+      }
+    },
+
+    prevSlide() {
+      if (this.currentSlide > 0) {
+        this.currentSlide--
+      }
+    },
+
+    goToSlide(index) {
+      this.currentSlide = index
     }
   }
 }
@@ -575,44 +698,147 @@ h1 {
   background: #20BA5A;
 }
 
-.features {
-  max-width: 1400px;
-  margin: 5rem auto;
+.menu-section {
+  padding: 3rem 0;
+  margin-top: 3rem;
+  background: #f8f8f8;
+}
+
+.menu-container {
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 0 2rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 3rem;
 }
 
-.feature-card {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 8px;
+.menu-intro {
   text-align: center;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s;
+  max-width: 700px;
+  margin: 0 auto 2.5rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #666;
 }
 
-.feature-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 40px rgba(255, 153, 51, 0.2);
-}
-
-.feature-icon {
-  font-size: 3rem;
+.carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.feature-title {
-  font-size: 1.5rem;
+.carousel-btn {
+  background: #ff9933;
+  color: white;
+  border: none;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(255, 153, 51, 0.3);
+}
+
+.carousel-btn:hover:not(:disabled) {
+  background: #e88820;
+  transform: scale(1.1);
+}
+
+.carousel-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.menu-carousel {
+  flex: 1;
+  overflow: hidden;
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.menu-carousel-track {
+  display: flex;
+  transition: transform 0.4s ease-in-out;
+}
+
+.menu-card {
+  min-width: 25%;
+  background: white;
+  border: 2px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s;
+  cursor: default;
+  box-sizing: border-box;
+}
+
+.menu-card:hover {
+  border-color: #ff9933;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(255, 153, 51, 0.15);
+}
+
+.menu-image {
+  width: 130px;
+  height: 130px;
+  object-fit: cover;
   margin-bottom: 1rem;
+  border-radius: 8px;
+}
+
+.menu-info {
+  text-align: center;
+  width: 100%;
+}
+
+.menu-item-name {
+  font-size: 1.1rem;
+  font-weight: 600;
   color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.menu-item-price {
+  font-size: 1rem;
+  color: #ff9933;
   font-weight: 700;
 }
 
-.feature-description {
-  color: #666;
-  line-height: 1.6;
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ddd;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.dot.active {
+  background: #ff9933;
+  width: 25px;
+  border-radius: 5px;
+}
+
+.dot:hover {
+  background: #ffb366;
 }
 
 footer {
@@ -630,6 +856,10 @@ footer p {
 @media (max-width: 1200px) {
   .products-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .menu-card {
+    min-width: 33.333%;
   }
 }
 
@@ -654,11 +884,50 @@ footer p {
     grid-template-columns: 1fr;
   }
 
-  .modal-images {
-    grid-template-columns: 1fr;
+  .carousel-wrapper {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
-  .features {
+  .carousel-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .carousel-btn.prev,
+  .carousel-btn.next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+
+  .carousel-btn.prev {
+    left: -10px;
+  }
+
+  .carousel-btn.next {
+    right: -10px;
+  }
+
+  .menu-carousel {
+    width: 100%;
+    padding: 1.5rem 1rem;
+  }
+
+  .menu-card {
+    min-width: 100%;
+    margin: 0 0.25rem;
+  }
+
+  .menu-intro {
+    font-size: 0.95rem;
+    padding: 0 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .modal-images {
     grid-template-columns: 1fr;
   }
 }
