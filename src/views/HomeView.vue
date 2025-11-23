@@ -5,6 +5,7 @@
         <div class="logo">🏖️ BEACH TIME</div>
         <ul class="nav-links">
           <li><a @click="scrollToSection('home')">Início</a></li>
+          <li><a @click="scrollToSection('avisos')">Avisos</a></li>
           <li><a @click="scrollToSection('quadras')">Quadras</a></li>
           <li><a @click="scrollToSection('cardapio')">Cardápio</a></li>
           <li><a @click="scrollToSection('contato')">Contato</a></li>
@@ -27,6 +28,85 @@
           <h1>{{ hero.title }}</h1>
           <p class="subtitle">{{ hero.subtitle }}</p>
           <p class="lorem-text">{{ hero.loremText }}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="avisos-section" id="avisos">
+      <div class="avisos-container">
+        <h2 class="section-title">📢 Avisos Importantes</h2>
+
+        <div v-if="currentUser && currentUser.isAdmin" class="admin-panel">
+          <h3>Painel Admin - Criar Aviso</h3>
+
+          <div v-if="avisoError" class="error-message">
+            {{ avisoError }}
+          </div>
+
+          <div v-if="avisoSuccess" class="success-message">
+            {{ avisoSuccess }}
+          </div>
+
+          <form @submit.prevent="createAviso" class="aviso-form">
+            <div class="form-group">
+              <label>Título:</label>
+              <input
+                type="text"
+                v-model="novoAviso.titulo"
+                placeholder="Ex: Manutenção programada"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Descrição:</label>
+              <textarea
+                v-model="novoAviso.descricao"
+                placeholder="Descreva o aviso..."
+                rows="4"
+                required
+              ></textarea>
+            </div>
+
+            <button type="submit" class="btn-criar" :disabled="isCreatingAviso">
+              {{ isCreatingAviso ? 'Criando...' : '✨ Criar Aviso' }}
+            </button>
+          </form>
+        </div>
+
+        <div v-if="loadingAvisos" class="loading">
+          Carregando avisos...
+        </div>
+
+        <div v-else-if="avisos.length === 0" class="no-avisos">
+          <p>📭 Nenhum aviso no momento.</p>
+        </div>
+
+        <div v-else class="avisos-grid">
+          <div
+            class="aviso-card"
+            v-for="aviso in avisos"
+            :key="aviso.id"
+          >
+            <div class="aviso-header">
+              <h3>{{ aviso.titulo }}</h3>
+              <span class="aviso-date">{{ formatDate(aviso.createdAt) }}</span>
+            </div>
+
+            <p class="aviso-description">{{ aviso.descricao }}</p>
+
+            <div class="aviso-footer">
+              <span class="aviso-author">Por: {{ aviso.adminName }}</span>
+
+              <button
+                v-if="currentUser && currentUser.isAdmin"
+                @click="deleteAviso(aviso.id)"
+                class="btn-delete"
+              >
+                🗑️ Deletar
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -146,6 +226,15 @@ export default {
       selectedCourt: null,
       currentSlide: 0,
       itemsPerSlide: 4,
+      avisos: [],
+      loadingAvisos: false,
+      novoAviso: {
+        titulo: '',
+        descricao: ''
+      },
+      isCreatingAviso: false,
+      avisoError: '',
+      avisoSuccess: '',
       hero: {
         title: 'Quadras',
         subtitle: 'Onde o esporte encontra o estilo de vida',
@@ -277,6 +366,7 @@ export default {
 
   mounted() {
     this.verifyAuth()
+    this.fetchAvisos()
   },
 
   methods: {
@@ -308,6 +398,104 @@ export default {
         localStorage.removeItem('user')
         this.$router.push('/auth')
       }
+    },
+
+    async fetchAvisos() {
+      this.loadingAvisos = true
+
+      try {
+        const response = await fetch('http://localhost:5000/api/avisos')
+
+        if (!response.ok) {
+          throw new Error('Erro ao buscar avisos')
+        }
+
+        const data = await response.json()
+        this.avisos = data
+
+      } catch (error) {
+        console.error('Erro ao carregar avisos:', error)
+      } finally {
+        this.loadingAvisos = false
+      }
+    },
+
+    async createAviso() {
+      this.avisoError = ''
+      this.avisoSuccess = ''
+      this.isCreatingAviso = true
+
+      const token = localStorage.getItem('token')
+
+      try {
+        const response = await fetch('http://localhost:5000/api/avisos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            titulo: this.novoAviso.titulo,
+            descricao: this.novoAviso.descricao
+          })
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Erro ao criar aviso')
+        }
+
+        this.avisoSuccess = 'Aviso criado com sucesso!'
+        this.novoAviso.titulo = ''
+        this.novoAviso.descricao = ''
+
+        await this.fetchAvisos()
+
+        setTimeout(() => {
+          this.avisoSuccess = ''
+        }, 3000)
+
+      } catch (error) {
+        this.avisoError = error.message
+      } finally {
+        this.isCreatingAviso = false
+      }
+    },
+
+    async deleteAviso(avisoId) {
+      if (!confirm('Tem certeza que deseja deletar este aviso?')) {
+        return
+      }
+
+      const token = localStorage.getItem('token')
+
+      try {
+        const response = await fetch(`http://localhost:5000/api/avisos/${avisoId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error('Erro ao deletar aviso')
+        }
+
+        await this.fetchAvisos()
+
+      } catch (error) {
+        alert('Erro ao deletar aviso: ' + error.message)
+      }
+    },
+
+    formatDate(dateString) {
+      const date = new Date(dateString)
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      })
     },
 
     openModal(court) {
@@ -491,6 +679,212 @@ h1 {
   line-height: 1.8;
   color: #666;
   text-align: justify;
+}
+
+.avisos-section {
+  padding: 4rem 0;
+  margin-top: 3rem;
+  background: #fff3e0;
+}
+
+.avisos-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.admin-panel {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 3rem;
+  border-left: 4px solid #ff9933;
+}
+
+.admin-panel h3 {
+  color: #1a1a1a;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+}
+
+.aviso-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 0.8rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #ff9933;
+}
+
+.btn-criar {
+  background: linear-gradient(to right, #ff9933, #ff7700);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  align-self: flex-start;
+}
+
+.btn-criar:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 153, 51, 0.3);
+}
+
+.btn-criar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.no-avisos {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.no-avisos p {
+  color: #999;
+  font-size: 1.2rem;
+}
+
+.avisos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.aviso-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #ff9933;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.aviso-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(255, 153, 51, 0.2);
+}
+
+.aviso-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.aviso-header h3 {
+  color: #1a1a1a;
+  font-size: 1.3rem;
+  font-weight: 700;
+  flex: 1;
+}
+
+.aviso-date {
+  background: #fff3e0;
+  color: #ff9933;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.aviso-description {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.aviso-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.aviso-author {
+  color: #999;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.btn-delete {
+  background: transparent;
+  color: #ff3333;
+  border: 1px solid #ff3333;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-delete:hover {
+  background: #ff3333;
+  color: white;
+}
+
+.error-message {
+  background: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #c62828;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.success-message {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #2e7d32;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
 }
 
 .carousel-section {
@@ -857,6 +1251,7 @@ footer p {
   .products-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+
   .menu-card {
     min-width: 33.333%;
   }
@@ -883,47 +1278,23 @@ footer p {
     grid-template-columns: 1fr;
   }
 
-  .carousel-wrapper {
+  .avisos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aviso-header {
     flex-direction: column;
-    gap: 0.5rem;
+    align-items: flex-start;
   }
 
-  .carousel-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.5rem;
+  .aviso-footer {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
   }
 
-  .carousel-btn.prev,
-  .carousel-btn.next {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-  }
-
-  .carousel-btn.prev {
-    left: -10px;
-  }
-
-  .carousel-btn.next {
-    right: -10px;
-  }
-
-  .menu-carousel {
+  .btn-delete {
     width: 100%;
-    padding: 1.5rem 1rem;
-  }
-
-  .menu-card {
-    min-width: 100%;
-    margin: 0 0.25rem;
-  }
-
-  .menu-intro {
-    font-size: 0.95rem;
-    padding: 0 1rem;
-    margin-bottom: 2rem;
   }
 
   .carousel-wrapper {
