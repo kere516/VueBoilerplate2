@@ -19,9 +19,9 @@
 
     <section class="hero" id="home">
       <div class="hero-content">
-        <img
-          src="https://media.istockphoto.com/id/1325602124/pt/foto/beach-volleyball-court-with-a-volleyball-ball-placed-in-the-sand.jpg?b=1&s=612x612&w=0&k=20&c=8KaviRau22VOBUZWPubuQDpNbRI7tzRcs2YKdj_QQR0="
-          alt="Beach Court"
+        <img 
+          src="https://media.istockphoto.com/id/1325602124/pt/foto/beach-volleyball-court-with-a-volleyball-ball-placed-in-the-sand.jpg?b=1&s=612x612&w=0&k=20&c=8KaviRau22VOBUZWPubuQDpNbRI7tzRcs2YKdj_QQR0=" 
+          alt="Beach Court" 
           class="hero-image"
         >
         <div class="hero-text">
@@ -38,11 +38,11 @@
 
         <div v-if="currentUser && currentUser.isAdmin" class="admin-panel">
           <h3>Painel Admin - Criar Aviso</h3>
-
+          
           <div v-if="avisoError" class="error-message">
             {{ avisoError }}
           </div>
-
+          
           <div v-if="avisoSuccess" class="success-message">
             {{ avisoSuccess }}
           </div>
@@ -50,9 +50,9 @@
           <form @submit.prevent="createAviso" class="aviso-form">
             <div class="form-group">
               <label>Título:</label>
-              <input
-                type="text"
-                v-model="novoAviso.titulo"
+              <input 
+                type="text" 
+                v-model="novoAviso.titulo" 
                 placeholder="Ex: Manutenção programada"
                 required
               />
@@ -60,8 +60,8 @@
 
             <div class="form-group">
               <label>Descrição:</label>
-              <textarea
-                v-model="novoAviso.descricao"
+              <textarea 
+                v-model="novoAviso.descricao" 
                 placeholder="Descreva o aviso..."
                 rows="4"
                 required
@@ -83,9 +83,9 @@
         </div>
 
         <div v-else class="avisos-grid">
-          <div
-            class="aviso-card"
-            v-for="aviso in avisos"
+          <div 
+            class="aviso-card" 
+            v-for="aviso in avisos" 
             :key="aviso.id"
           >
             <div class="aviso-header">
@@ -97,9 +97,9 @@
 
             <div class="aviso-footer">
               <span class="aviso-author">Por: {{ aviso.adminName }}</span>
-
-              <button
-                v-if="currentUser && currentUser.isAdmin"
+              
+              <button 
+                v-if="currentUser && currentUser.isAdmin" 
                 @click="deleteAviso(aviso.id)"
                 class="btn-delete"
               >
@@ -114,12 +114,12 @@
     <section class="carousel-section" id="quadras">
       <div class="carousel-container">
         <h2 class="section-title">Nossas Quadras</h2>
-
+        
         <div class="products-grid">
-          <div
-            class="product-card"
-            v-for="(court, index) in courts"
-            :key="index"
+          <div 
+            class="product-card" 
+            v-for="(court, index) in courts" 
+            :key="index" 
             @click="openModal(court)"
           >
             <span class="product-badge" v-if="court.discount">{{ court.discount }}</span>
@@ -136,7 +136,7 @@
     <div class="modal-overlay" v-if="selectedCourt" @click.self="closeModal">
       <div class="modal-content">
         <button class="modal-close" @click="closeModal">×</button>
-
+        
         <div class="modal-images">
           <img :src="selectedCourt.image" :alt="selectedCourt.title" class="modal-main-image">
           <img :src="selectedCourt.image2" :alt="selectedCourt.title" class="modal-main-image">
@@ -169,8 +169,8 @@
       <div class="menu-container">
         <h2 class="section-title">Nosso Cardápio</h2>
         <p class="menu-intro">
-          Aproveite o melhor da gastronomia enquanto se diverte! Nosso cardápio foi
-          cuidadosamente elaborado para oferecer opções deliciosas que combinam perfeitamente
+          Aproveite o melhor da gastronomia enquanto se diverte! Nosso cardápio foi 
+          cuidadosamente elaborado para oferecer opções deliciosas que combinam perfeitamente 
           com um dia de esportes e diversão.
         </p>
 
@@ -178,10 +178,10 @@
           <button class="carousel-btn prev" @click="prevSlide" :disabled="currentSlide === 0">
             ‹
           </button>
-
+          
           <div class="menu-carousel">
-            <div
-              class="menu-carousel-track"
+            <div 
+              class="menu-carousel-track" 
               :style="{ transform: `translateX(-${currentSlide * slideWidth}%)` }"
             >
               <div class="menu-card" v-for="(item, index) in menuItems" :key="index">
@@ -200,8 +200,8 @@
         </div>
 
         <div class="carousel-dots">
-          <span
-            v-for="(dot, index) in totalDots"
+          <span 
+            v-for="(dot, index) in totalDots" 
             :key="index"
             class="dot"
             :class="{ active: index === currentSlide }"
@@ -243,11 +243,8 @@ export default {
       courts: [
         {
           title: 'Quadra Premium',
-          price: 'R$ 120/hora',
-          rating: '4.9',
-          discount: '-15%',
-          image: 'https://media.istockphoto.com/id/1320604444/pt/foto/beach-volleyball-court-with-sand-on-the-ground-and-net-in-city-playground.jpg?s=612x612&w=0&k=20&c=48rJdFX_3F8RKDkOUNxtpWgMMw5W8oatNrUNTNtj0M8=',
-          image2: 'https://media.istockphoto.com/id/1567274084/pt/foto/white-sand-beach-volleyball-court-white-soft-dunes-fenced-with-nets-the-lines-of-the-playing.jpg?s=612x612&w=0&k=20&c=Oa6zmevB2cYDMPIjWBHxLnbSWWRyqNPLbkavxntKLqw=',
+          image: '/images/quadra1.jpg',
+          image2: '/images/quadra1.jpg',
           fullDescription: 'Quadra profissional com areia importada de alta qualidade, proporcionando a melhor experiência de jogo. Ideal para treinos e competições.',
           features: [
             'Areia importada premium',
@@ -260,10 +257,8 @@ export default {
         },
         {
           title: 'Quadra Standard',
-          price: 'R$ 80/hora',
-          rating: '4.7',
-          image: 'https://media.istockphoto.com/id/1567274084/pt/foto/white-sand-beach-volleyball-court-white-soft-dunes-fenced-with-nets-the-lines-of-the-playing.jpg?s=612x612&w=0&k=20&c=Oa6zmevB2cYDMPIjWBHxLnbSWWRyqNPLbkavxntKLqw=',
-          image2: 'https://media.istockphoto.com/id/1320604444/pt/foto/beach-volleyball-court-with-sand-on-the-ground-and-net-in-city-playground.jpg?s=612x612&w=0&k=20&c=48rJdFX_3F8RKDkOUNxtpWgMMw5W8oatNrUNTNtj0M8=',
+          image: '/images/quadra2.jpg',
+          image2: '/images/quadra2.jpg',
           fullDescription: 'Quadra completa com boa estrutura, perfeita para jogos recreativos e treinos regulares. Excelente custo-benefício.',
           features: [
             'Areia de qualidade',
@@ -275,11 +270,8 @@ export default {
         },
         {
           title: 'Quadra Noturna',
-          price: 'R$ 100/hora',
-          rating: '4.8',
-          discount: '-10%',
-          image: 'https://media.istockphoto.com/id/1225872726/pt/foto/handball-field-and-yellow-handball-cages-or-handball-goals.jpg?s=612x612&w=0&k=20&c=HQktdvA1mmc05iopLND-p3dQLLMzD3oN0VN-aN31Zx0=',
-          image2: 'https://media.istockphoto.com/id/2018147746/pt/foto/football-game-football-goal-with-a-net-beach-soccer.jpg?s=612x612&w=0&k=20&c=HGPwx2BF7SZBtiExNB25Pl8_bGW-6241Cjl74NrTU2Q=',
+          image: '/images/quadra3.jpg',
+          image2: '/images/quadra3.jpg',
           fullDescription: 'Especializada em jogos noturnos com sistema de iluminação de última geração. Perfeita para quem joga após o trabalho.',
           features: [
             'Disponível até 23h',
@@ -290,10 +282,8 @@ export default {
         },
         {
           title: 'Quadra Eventos',
-          price: 'R$ 150/hora',
-          rating: '5.0',
-          image: 'https://media.istockphoto.com/id/2018147746/pt/foto/football-game-football-goal-with-a-net-beach-soccer.jpg?s=612x612&w=0&k=20&c=HGPwx2BF7SZBtiExNB25Pl8_bGW-6241Cjl74NrTU2Q=',
-          image2: 'https://media.istockphoto.com/id/1225872726/pt/foto/handball-field-and-yellow-handball-cages-or-handball-goals.jpg?s=612x612&w=0&k=20&c=HQktdvA1mmc05iopLND-p3dQLLMzD3oN0VN-aN31Zx0=',
+          image: '/images/quadra4.jpg',
+          image2: '/images/quadra4.jpg',
           fullDescription: 'Quadra premium preparada para torneios e eventos. Conta com arquibancada, placar eletrônico e toda infraestrutura necessária.',
           features: [
             'Placar eletrônico',
@@ -372,7 +362,7 @@ export default {
   methods: {
     async verifyAuth() {
       const token = localStorage.getItem('token')
-
+      
       if (!token) {
         this.$router.push('/auth')
         return
@@ -402,10 +392,10 @@ export default {
 
     async fetchAvisos() {
       this.loadingAvisos = true
-
+      
       try {
         const response = await fetch('http://localhost:5000/api/avisos')
-
+        
         if (!response.ok) {
           throw new Error('Erro ao buscar avisos')
         }
@@ -933,18 +923,6 @@ h1 {
   object-fit: cover;
 }
 
-.product-badge {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: #ff3333;
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: bold;
-}
-
 .product-info {
   padding: 1.5rem;
 }
@@ -1251,7 +1229,7 @@ footer p {
   .products-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-
+  
   .menu-card {
     min-width: 33.333%;
   }
@@ -1296,18 +1274,18 @@ footer p {
   .btn-delete {
     width: 100%;
   }
-
+  
   .carousel-wrapper {
     flex-direction: column;
     gap: 0.5rem;
   }
-
+  
   .carousel-btn {
     width: 40px;
     height: 40px;
     font-size: 1.5rem;
   }
-
+  
   .carousel-btn.prev,
   .carousel-btn.next {
     position: absolute;
@@ -1315,25 +1293,25 @@ footer p {
     transform: translateY(-50%);
     z-index: 10;
   }
-
+  
   .carousel-btn.prev {
     left: -10px;
   }
-
+  
   .carousel-btn.next {
     right: -10px;
   }
-
+  
   .menu-carousel {
     width: 100%;
     padding: 1.5rem 1rem;
   }
-
+  
   .menu-card {
     min-width: 100%;
     margin: 0 0.25rem;
   }
-
+  
   .menu-intro {
     font-size: 0.95rem;
     padding: 0 1rem;
