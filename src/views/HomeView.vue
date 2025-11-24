@@ -19,9 +19,9 @@
 
     <section class="hero" id="home">
       <div class="hero-content">
-        <img 
-          src="https://media.istockphoto.com/id/1325602124/pt/foto/beach-volleyball-court-with-a-volleyball-ball-placed-in-the-sand.jpg?b=1&s=612x612&w=0&k=20&c=8KaviRau22VOBUZWPubuQDpNbRI7tzRcs2YKdj_QQR0=" 
-          alt="Beach Court" 
+        <img
+          src="https://media.istockphoto.com/id/1325602124/pt/foto/beach-volleyball-court-with-a-volleyball-ball-placed-in-the-sand.jpg?b=1&s=612x612&w=0&k=20&c=8KaviRau22VOBUZWPubuQDpNbRI7tzRcs2YKdj_QQR0="
+          alt="Beach Court"
           class="hero-image"
         >
         <div class="hero-text">
@@ -38,11 +38,11 @@
 
         <div v-if="currentUser && currentUser.isAdmin" class="admin-panel">
           <h3>Painel Admin - Criar Aviso</h3>
-          
+
           <div v-if="avisoError" class="error-message">
             {{ avisoError }}
           </div>
-          
+
           <div v-if="avisoSuccess" class="success-message">
             {{ avisoSuccess }}
           </div>
@@ -50,9 +50,9 @@
           <form @submit.prevent="createAviso" class="aviso-form">
             <div class="form-group">
               <label>Título:</label>
-              <input 
-                type="text" 
-                v-model="novoAviso.titulo" 
+              <input
+                type="text"
+                v-model="novoAviso.titulo"
                 placeholder="Ex: Manutenção programada"
                 required
               />
@@ -60,8 +60,8 @@
 
             <div class="form-group">
               <label>Descrição:</label>
-              <textarea 
-                v-model="novoAviso.descricao" 
+              <textarea
+                v-model="novoAviso.descricao"
                 placeholder="Descreva o aviso..."
                 rows="4"
                 required
@@ -83,9 +83,9 @@
         </div>
 
         <div v-else class="avisos-grid">
-          <div 
-            class="aviso-card" 
-            v-for="aviso in avisos" 
+          <div
+            class="aviso-card"
+            v-for="aviso in avisos"
             :key="aviso.id"
           >
             <div class="aviso-header">
@@ -97,9 +97,9 @@
 
             <div class="aviso-footer">
               <span class="aviso-author">Por: {{ aviso.adminName }}</span>
-              
-              <button 
-                v-if="currentUser && currentUser.isAdmin" 
+
+              <button
+                v-if="currentUser && currentUser.isAdmin"
                 @click="deleteAviso(aviso.id)"
                 class="btn-delete"
               >
@@ -114,12 +114,12 @@
     <section class="carousel-section" id="quadras">
       <div class="carousel-container">
         <h2 class="section-title">Nossas Quadras</h2>
-        
+
         <div class="products-grid">
-          <div 
-            class="product-card" 
-            v-for="(court, index) in courts" 
-            :key="index" 
+          <div
+            class="product-card"
+            v-for="(court, index) in courts"
+            :key="index"
             @click="openModal(court)"
           >
             <span class="product-badge" v-if="court.discount">{{ court.discount }}</span>
@@ -136,7 +136,7 @@
     <div class="modal-overlay" v-if="selectedCourt" @click.self="closeModal">
       <div class="modal-content">
         <button class="modal-close" @click="closeModal">×</button>
-        
+
         <div class="modal-images">
           <img :src="selectedCourt.image" :alt="selectedCourt.title" class="modal-main-image">
           <img :src="selectedCourt.image2" :alt="selectedCourt.title" class="modal-main-image">
@@ -165,30 +165,44 @@
       </div>
     </div>
 
+    <div class="modal-overlay" v-if="selectedMenuPhoto" @click.self="closeMenuModal">
+      <div class="modal-content-menu">
+        <button class="modal-close" @click="closeMenuModal">×</button>
+        <img
+          :src="selectedMenuPhoto.image"
+          :alt="selectedMenuPhoto.name"
+          class="modal-menu-image-zoom"
+        >
+      </div>
+    </div>
+
+
     <section class="menu-section" id="cardapio">
       <div class="menu-container">
         <h2 class="section-title">Nosso Cardápio</h2>
         <p class="menu-intro">
-          Aproveite o melhor da gastronomia enquanto se diverte! Nosso cardápio foi 
-          cuidadosamente elaborado para oferecer opções deliciosas que combinam perfeitamente 
-          com um dia de esportes e diversão.
+          Aproveite o melhor da gastronomia e restabeleça a energia do seu corpo enquanto se diverte! Clique em um cardápio para ampliá-lo e visualizar todas as opções.
         </p>
 
         <div class="carousel-wrapper">
           <button class="carousel-btn prev" @click="prevSlide" :disabled="currentSlide === 0">
             ‹
           </button>
-          
+
           <div class="menu-carousel">
-            <div 
-              class="menu-carousel-track" 
+            <div
+              class="menu-carousel-track"
               :style="{ transform: `translateX(-${currentSlide * slideWidth}%)` }"
             >
-              <div class="menu-card" v-for="(item, index) in menuItems" :key="index">
-                <img :src="item.image" :alt="item.name" class="menu-image">
+              <div
+                class="menu-card menu-photo-card"
+                v-for="(item, index) in menuPhotos"
+                :key="index"
+                @click="openMenuModal(item)"
+              >
+                <img :src="item.image" :alt="item.name" class="menu-image menu-photo-image">
                 <div class="menu-info">
                   <h3 class="menu-item-name">{{ item.name }}</h3>
-                  <p class="menu-item-price">{{ item.price }}</p>
                 </div>
               </div>
             </div>
@@ -200,8 +214,8 @@
         </div>
 
         <div class="carousel-dots">
-          <span 
-            v-for="(dot, index) in totalDots" 
+          <span
+            v-for="(dot, index) in totalDots"
             :key="index"
             class="dot"
             :class="{ active: index === currentSlide }"
@@ -224,6 +238,7 @@ export default {
     return {
       currentUser: null,
       selectedCourt: null,
+      selectedMenuPhoto: null,
       currentSlide: 0,
       itemsPerSlide: 4,
       avisos: [],
@@ -292,51 +307,26 @@ export default {
           whatsapp: '5586995797982'
         }
       ],
-      menuItems: [
+      menuPhotos: [
         {
-          name: 'X-Burguer',
-          price: 'R$ 15.90',
-          image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop'
+          name: 'Cardápio Cajueiro Beach House',
+          image: '/images/card5.jpg'
         },
         {
-          name: 'X-Bacon',
-          price: 'R$ 18.90',
-          image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&h=400&fit=crop'
+          name: 'Jogada Principal',
+          image: '/images/card2.jpg'
         },
         {
-          name: 'X-Salada',
-          price: 'R$ 14.90',
-          image: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400&h=400&fit=crop'
+          name: 'Bora pro Play',
+          image: '/images/card3.jpg'
         },
         {
-          name: 'Batata Frita',
-          price: 'R$ 8.90',
-          image: 'https://images.unsplash.com/photo-1576107232684-1279f390859f?w=400&h=400&fit=crop'
+          name: 'Aquecimento',
+          image: '/images/card4.jpg'
         },
         {
-          name: 'Hot Dog',
-          price: 'R$ 10.90',
-          image: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=400&h=400&fit=crop'
-        },
-        {
-          name: 'Pizza',
-          price: 'R$ 35.90',
-          image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=400&fit=crop'
-        },
-        {
-          name: 'Refrigerante',
-          price: 'R$ 5.00',
-          image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&h=400&fit=crop'
-        },
-        {
-          name: 'Suco Natural',
-          price: 'R$ 8.00',
-          image: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=400&fit=crop'
-        },
-        {
-          name: 'Água Mineral',
-          price: 'R$ 3.50',
-          image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=400&fit=crop'
+          name: 'Cajueiro Grill',
+          image: '/images/card1.jpg'
         }
       ]
     }
@@ -347,7 +337,7 @@ export default {
       return 100 / this.itemsPerSlide
     },
     maxSlide() {
-      return Math.ceil(this.menuItems.length / this.itemsPerSlide) - 1
+      return Math.ceil(this.menuPhotos.length / this.itemsPerSlide) - 1
     },
     totalDots() {
       return this.maxSlide + 1
@@ -362,7 +352,7 @@ export default {
   methods: {
     async verifyAuth() {
       const token = localStorage.getItem('token')
-      
+
       if (!token) {
         this.$router.push('/auth')
         return
@@ -392,10 +382,10 @@ export default {
 
     async fetchAvisos() {
       this.loadingAvisos = true
-      
+
       try {
         const response = await fetch('http://localhost:5000/api/avisos')
-        
+
         if (!response.ok) {
           throw new Error('Erro ao buscar avisos')
         }
@@ -495,6 +485,16 @@ export default {
 
     closeModal() {
       this.selectedCourt = null
+      document.body.style.overflow = 'auto'
+    },
+
+    openMenuModal(photo) {
+      this.selectedMenuPhoto = photo
+      document.body.style.overflow = 'hidden'
+    },
+
+    closeMenuModal() {
+      this.selectedMenuPhoto = null
       document.body.style.overflow = 'auto'
     },
 
@@ -963,16 +963,45 @@ h1 {
   position: relative;
 }
 
+.modal-content-menu {
+  background: white;
+  border-radius: 12px;
+  max-width: 95%;
+  width: auto;
+  max-height: 95vh;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-menu-image-zoom {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  display: block;
+  border-radius: 12px;
+}
+
 .modal-close {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: none;
+  background: #1a1a1a;
+  color: white;
   border: none;
-  font-size: 2rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
   z-index: 10;
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+.modal-close:hover {
+  opacity: 1;
 }
 
 .modal-images {
@@ -1152,7 +1181,7 @@ h1 {
   flex-direction: column;
   align-items: center;
   transition: all 0.3s;
-  cursor: default;
+  cursor: pointer;
   box-sizing: border-box;
 }
 
@@ -1162,12 +1191,21 @@ h1 {
   box-shadow: 0 8px 25px rgba(255, 153, 51, 0.15);
 }
 
+.menu-photo-card {
+  padding: 1rem;
+}
+
 .menu-image {
-  width: 130px;
-  height: 130px;
+  width: 100%;
+  height: 250px;
   object-fit: cover;
   margin-bottom: 1rem;
   border-radius: 8px;
+}
+
+.menu-photo-image {
+  height: 200px;
+  object-fit: cover;
 }
 
 .menu-info {
@@ -1179,13 +1217,7 @@ h1 {
   font-size: 1.1rem;
   font-weight: 600;
   color: #1a1a1a;
-  margin-bottom: 0.5rem;
-}
-
-.menu-item-price {
-  font-size: 1rem;
-  color: #ff9933;
-  font-weight: 700;
+  margin-bottom: 0;
 }
 
 .carousel-dots {
@@ -1229,7 +1261,7 @@ footer p {
   .products-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .menu-card {
     min-width: 33.333%;
   }
@@ -1274,18 +1306,18 @@ footer p {
   .btn-delete {
     width: 100%;
   }
-  
+
   .carousel-wrapper {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .carousel-btn {
     width: 40px;
     height: 40px;
     font-size: 1.5rem;
   }
-  
+
   .carousel-btn.prev,
   .carousel-btn.next {
     position: absolute;
@@ -1293,25 +1325,25 @@ footer p {
     transform: translateY(-50%);
     z-index: 10;
   }
-  
+
   .carousel-btn.prev {
     left: -10px;
   }
-  
+
   .carousel-btn.next {
     right: -10px;
   }
-  
+
   .menu-carousel {
     width: 100%;
     padding: 1.5rem 1rem;
   }
-  
+
   .menu-card {
     min-width: 100%;
     margin: 0 0.25rem;
   }
-  
+
   .menu-intro {
     font-size: 0.95rem;
     padding: 0 1rem;
@@ -1320,6 +1352,11 @@ footer p {
 
   .modal-images {
     grid-template-columns: 1fr;
+  }
+
+  .modal-content-menu {
+    max-width: 100%;
+    max-height: 100vh;
   }
 }
 </style>
