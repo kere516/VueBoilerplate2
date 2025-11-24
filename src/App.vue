@@ -16,7 +16,7 @@ export default {
 }
 
 body {
-  font-family: 'Georgia', serif;
+  font-family: 'Roboto', sans-serif;
   color: #2b2b2b;
   background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
   line-height: 1.6;
