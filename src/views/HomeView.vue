@@ -8,6 +8,7 @@
           <li><a @click="scrollToSection('avisos')">Avisos</a></li>
           <li><a @click="scrollToSection('quadras')">Quadras</a></li>
           <li><a @click="scrollToSection('cardapio')">Cardápio</a></li>
+          <li><a @click="$router.push('/agendamento')">Agendamento</a></li>
           <li><a @click="scrollToSection('contato')">Contato</a></li>
         </ul>
         <div class="nav-actions">
@@ -257,7 +258,7 @@ export default {
       },
       courts: [
         {
-          title: 'Quadra Premium',
+          title: 'Quadra Crescer',
           image: '/images/quadra1.jpg',
           image2: '/images/quadra1.jpg',
           fullDescription: 'Quadra profissional com areia importada de alta qualidade, proporcionando a melhor experiência de jogo. Ideal para treinos e competições.',
@@ -271,7 +272,7 @@ export default {
           whatsapp: '5586995797982'
         },
         {
-          title: 'Quadra Standard',
+          title: 'Quadra Exata',
           image: '/images/quadra2.jpg',
           image2: '/images/quadra2.jpg',
           fullDescription: 'Quadra completa com boa estrutura, perfeita para jogos recreativos e treinos regulares. Excelente custo-benefício.',
@@ -284,7 +285,7 @@ export default {
           whatsapp: '5586995797982'
         },
         {
-          title: 'Quadra Noturna',
+          title: 'Quadra Fórmula Animal',
           image: '/images/quadra3.jpg',
           image2: '/images/quadra3.jpg',
           fullDescription: 'Especializada em jogos noturnos com sistema de iluminação de última geração. Perfeita para quem joga após o trabalho.',
@@ -296,13 +297,41 @@ export default {
           whatsapp: '5586995797982'
         },
         {
-          title: 'Quadra Eventos',
+          title: 'Quadra Laisa',
           image: '/images/quadra4.jpg',
           image2: '/images/quadra4.jpg',
           fullDescription: 'Quadra premium preparada para torneios e eventos. Conta com arquibancada, placar eletrônico e toda infraestrutura necessária.',
           features: [
             'Placar eletrônico',
             'Sistema de som'
+          ],
+          whatsapp: '5586995797982'
+        },
+        {
+          title: 'Quadra Tron',
+          image: '/images/quadra5.jpg',
+          image2: '/images/quadra5.jpg',
+          fullDescription: 'Quadra exclusiva com acabamento premium e serviços diferenciados. Ideal para clientes que buscam o máximo em conforto e qualidade.',
+          features: [
+            'Areia especial importada',
+            'Área VIP com ar condicionado',
+            'Serviço de toalhas',
+            'Bebidas inclusas',
+            'Estacionamento valet'
+          ],
+          whatsapp: '5586995797982'
+        },
+        {
+          title: 'Quadra 60 Minutos',
+          image: '/images/quadra6.jpg',
+          image2: '/images/quadra6.jpg',
+          fullDescription: 'Quadra pensada para toda a família, com área kids e espaço para confraternização. Perfeita para eventos familiares e comemorações.',
+          features: [
+            'Área kids segura',
+            'Churrasqueira disponível',
+            'Mesas para confraternização',
+            'Playground próximo',
+            'Banheiro família'
           ],
           whatsapp: '5586995797982'
         }
