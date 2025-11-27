@@ -2,7 +2,7 @@
   <div class="auth-page">
     <div class="auth-container" :class="{ 'show-register': isSignUp }">
       <div class="auth-form login-form" v-show="!isSignUp">
-        <h2>Sign In</h2>
+        <h2>Login</h2>
 
         <div v-if="signInError" class="error-message">
           {{ signInError }}
