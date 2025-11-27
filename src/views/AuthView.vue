@@ -1,107 +1,122 @@
 <template>
   <div class="auth-page">
     <div class="auth-container" :class="{ 'show-register': isSignUp }">
-      
-      <div class="auth-form login-form">
-        <h2>Sign In</h2>
-        
+      <div class="auth-form login-form" v-show="!isSignUp">
+        <h2>Login</h2>
+
         <div v-if="signInError" class="error-message">
           {{ signInError }}
         </div>
-        
-        <div class="input-field">
-          <i class="fas fa-envelope"></i>
-          <input 
-            v-model="signInData.email" 
-            type="email" 
-            placeholder="Email"
-            required
-          />
-        </div>
-        
-        <div class="input-field">
-          <i class="fas fa-lock"></i>
-          <input 
-            v-model="signInData.password" 
-            type="password" 
-            placeholder="Senha"
-            required
-          />
-        </div>
-        
-        <a href="#" class="forgot-link" @click.prevent="handleForgot">Esqueceu sua senha?</a>
-        
-        <button @click="handleSignIn" class="btn btn-submit">ENTRAR</button>
-        
-        <p class="toggle-text">
-          Não tem conta? 
-          <a href="#" @click.prevent="toggleForm">Cadastre-se</a>
-        </p>
+
+        <form @submit.prevent="handleSignIn">
+          <div class="input-group">
+            <i class="fa fa-envelope"></i>
+            <input
+              type="email"
+              v-model="signInEmail"
+              placeholder="Email"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <i class="fa fa-lock"></i>
+            <input
+              :type="showSignInPassword ? 'text' : 'password'"
+              v-model="signInPassword"
+              placeholder="Senha"
+              required
+            />
+            <i
+              :class="showSignInPassword ? 'fa fa-eye-slash' : 'fa fa-eye'"
+              class="toggle-password"
+              @click="showSignInPassword = !showSignInPassword"
+            ></i>
+          </div>
+
+          <p class="forgot-password">Esqueceu sua senha?</p>
+
+          <button type="submit" class="btn-submit" :disabled="isLoading">
+            {{ isLoading ? 'Entrando...' : 'ENTRAR' }}
+          </button>
+
+          <p class="switch-text">
+            Não tem conta? <a href="#" @click.prevent="isSignUp = true">Cadastre-se</a>
+          </p>
+        </form>
       </div>
 
-      <div class="auth-form register-form">
+      <div class="auth-form register-form" v-show="isSignUp">
         <h2>Crie Sua Conta</h2>
-        
+
         <div v-if="signUpError" class="error-message">
           {{ signUpError }}
         </div>
+
         <div v-if="signUpSuccess" class="success-message">
           {{ signUpSuccess }}
         </div>
-        
-        <div class="input-field">
-          <i class="fas fa-user"></i>
-          <input 
-            v-model="signUpData.name" 
-            type="text" 
-            placeholder="Nome"
-            required
-          />
-        </div>
-        
-        <div class="input-field">
-          <i class="fas fa-envelope"></i>
-          <input 
-            v-model="signUpData.email" 
-            type="email" 
-            placeholder="Email"
-            required
-          />
-        </div>
-        
-        <div class="input-field">
-          <i class="fas fa-lock"></i>
-          <input 
-            v-model="signUpData.password" 
-            type="password" 
-            placeholder="Senha"
-            required
-          />
-        </div>
-        
-        <button @click="handleSignUp" class="btn btn-submit">CADASTRAR</button>
-        
-        <p class="toggle-text">
-          Já tem conta? 
-          <a href="#" @click.prevent="toggleForm">Entrar</a>
-        </p>
+
+        <form @submit.prevent="handleSignUp">
+          <div class="input-group">
+            <i class="fa fa-user"></i>
+            <input
+              type="text"
+              v-model="signUpName"
+              placeholder="Nome"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <i class="fa fa-envelope"></i>
+            <input
+              type="email"
+              v-model="signUpEmail"
+              placeholder="Email"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <i class="fa fa-lock"></i>
+            <input
+              :type="showSignUpPassword ? 'text' : 'password'"
+              v-model="signUpPassword"
+              placeholder="Senha"
+              required
+              minlength="6"
+            />
+            <i
+              :class="showSignUpPassword ? 'fa fa-eye-slash' : 'fa fa-eye'"
+              class="toggle-password"
+              @click="showSignUpPassword = !showSignUpPassword"
+            ></i>
+          </div>
+
+          <button type="submit" class="btn-submit" :disabled="isLoading">
+            {{ isLoading ? 'Cadastrando...' : 'CADASTRAR' }}
+          </button>
+
+          <p class="switch-text">
+            Já tem conta? <a href="#" @click.prevent="isSignUp = false">Entrar</a>
+          </p>
+        </form>
       </div>
 
-      <div class="overlay-panel">
-        <div class="overlay-content">
-          <h3 v-if="!isSignUp">Olá, Amigo!</h3>
-          <h3 v-else>Bem Vindo de Volta!</h3>
-          
-          <p v-if="!isSignUp">
-            Registre seus dados pessoais para usar todos os recursos do nosso site.
-          </p>
-          <p v-else>
-            Para se conectar, por favor, faça login com suas informações pessoais.
-          </p>
-          
-          <button @click="toggleForm" class="btn btn-toggle">
-            {{ isSignUp ? 'ENTRAR' : 'CADASTRAR' }}
-          </button>
+      <div class="overlay-container">
+        <div class="overlay">
+          <div class="overlay-panel overlay-left">
+            <h2>Bem Vindo de Volta!</h2>
+            <p>Para se conectar, por favor, faça login com suas informações pessoais.</p>
+            <button class="btn-ghost" @click="isSignUp = false">ENTRAR</button>
+          </div>
+
+          <div class="overlay-panel overlay-right">
+            <h2>Olá, Amigo!</h2>
+            <p>Registre seus dados pessoais para usar todos os recursos do nosso site.</p>
+            <button class="btn-ghost" @click="isSignUp = true">CADASTRAR</button>
+          </div>
         </div>
       </div>
     </div>
@@ -114,150 +129,106 @@ export default {
   data() {
     return {
       isSignUp: false,
-      
-      signInData: {
-        email: '',
-        password: ''
-      },
-      signUpData: {
-        name: '',
-        email: '',
-        password: ''
-      },
-      
+      isLoading: false,
+      signInEmail: '',
+      signInPassword: '',
+      showSignInPassword: false,
       signInError: '',
+      signUpName: '',
+      signUpEmail: '',
+      signUpPassword: '',
+      showSignUpPassword: false,
       signUpError: '',
       signUpSuccess: ''
     }
   },
-  
-  mounted() {
-    this.initializeStorage()
-    
-    const currentUser = localStorage.getItem('beachtime_currentUser')
-    if (currentUser) {
-      const user = JSON.parse(currentUser)
-      if (user.isLoggedIn) {
+  methods: {
+    async handleSignIn() {
+      this.signInError = ''
+      this.isLoading = true
+
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: this.signInEmail,
+            password: this.signInPassword
+          })
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Erro ao fazer login')
+        }
+
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('user', JSON.stringify(data.user))
+
         this.$router.push('/home')
+
+      } catch (error) {
+        this.signInError = error.message
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    async handleSignUp() {
+      this.signUpError = ''
+      this.signUpSuccess = ''
+      this.isLoading = true
+
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: this.signUpName,
+            email: this.signUpEmail,
+            password: this.signUpPassword
+          })
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Erro ao cadastrar')
+        }
+
+        this.signUpSuccess = 'Cadastro realizado! Redirecionando para login...'
+
+        this.signUpName = ''
+        this.signUpEmail = ''
+        this.signUpPassword = ''
+
+        setTimeout(() => {
+          this.isSignUp = false
+          this.signUpSuccess = ''
+        }, 2000)
+
+      } catch (error) {
+        this.signUpError = error.message
+      } finally {
+        this.isLoading = false
       }
     }
   },
-  
-  methods: {
-    initializeStorage() {
-      if (!localStorage.getItem('beachtime_users')) {
-        localStorage.setItem('beachtime_users', JSON.stringify([]))
-      }
-    },
-    
-    toggleForm() {
-      this.isSignUp = !this.isSignUp
-      this.clearMessages()
-    },
-    
-    clearMessages() {
-      this.signInError = ''
-      this.signUpError = ''
-      this.signUpSuccess = ''
-    },
-    
-    getAllUsers() {
-      return JSON.parse(localStorage.getItem('beachtime_users') || '[]')
-    },
-    
-    handleSignUp() {
-      const { name, email, password } = this.signUpData
-      
-      if (!name || name.length < 3) {
-        this.signUpError = 'Nome deve ter pelo menos 3 caracteres!'
-        return
-      }
-      
-      if (!email || !this.isValidEmail(email)) {
-        this.signUpError = 'Email inválido!'
-        return
-      }
-      
-      if (!password || password.length < 6) {
-        this.signUpError = 'Senha deve ter pelo menos 6 caracteres!'
-        return
-      }
-      
-      const users = this.getAllUsers()
-      if (users.find(user => user.email === email)) {
-        this.signUpError = 'Este email já está cadastrado!'
-        return
-      }
-      
-      users.push({
-        name: name,
-        email: email,
-        password: password,
-        createdAt: new Date().toISOString()
-      })
-      
-      localStorage.setItem('beachtime_users', JSON.stringify(users))
-      this.signUpSuccess = 'Cadastro realizado com sucesso!'
-      this.signUpError = ''
-      this.signUpData = { name: '', email: '', password: '' }
-      
-      setTimeout(() => {
-        this.isSignUp = false
-        this.signUpSuccess = ''
-      }, 2000)
-    },
-    
-    handleSignIn() {
-      const { email, password } = this.signInData
-
-      if (!email || !this.isValidEmail(email)) {
-        this.signInError = 'Email inválido!'
-        return
-      }
-      
-      if (!password) {
-        this.signInError = 'Senha obrigatória!'
-        return
-      }
-      
-      const users = this.getAllUsers()
-      const user = users.find(u => u.email === email && u.password === password)
-      
-      if (user) {
-        localStorage.setItem('beachtime_currentUser', JSON.stringify({
-          name: user.name,
-          email: user.email,
-          isLoggedIn: true,
-          loginTime: new Date().toISOString()
-        }))
-        
-        this.signInData = { email: '', password: '' }
-        this.signInError = ''
-        
-        setTimeout(() => {
-          this.$router.push('/home')
-        }, 500)
-      } else {
-        this.signInError = 'Email ou senha incorretos!'
-      }
-    },
-    
-    handleForgot() {
-      alert('Funcionalidade de recuperação de senha em desenvolvimento!')
-    },
-    
-    isValidEmail(email) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      return re.test(email)
+  mounted() {
+    const token = localStorage.getItem('token')
+    if (token) {
+      this.$router.push('/home')
     }
   }
 }
 </script>
 
 <style scoped>
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
-
 * {
   margin: 0;
   padding: 0;
@@ -265,153 +236,146 @@ export default {
 }
 
 .auth-page {
-  width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
 }
 
 .auth-container {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 14px 28px rgba(0,0,0,0.15), 0 10px 10px rgba(0,0,0,0.1);
   position: relative;
-  width: 100%;
-  max-width: 900px;
-  height: 500px;
-  background: transparent;
-  border-radius: 15px;
-  box-shadow: none;
   overflow: hidden;
+  width: 900px;
+  max-width: 100%;
+  min-height: 550px;
 }
 
 .auth-form {
   position: absolute;
   top: 0;
-  left: 0;
-  width: 50%;
   height: 100%;
+  transition: all 0.6s ease-in-out;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  padding: 40px;
-  transition: all 0.6s ease-in-out;
-  z-index: 10;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 15px;
-  margin-right: 10px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 0 50px;
 }
 
 .login-form {
   left: 0;
-  opacity: 1;
+  width: 50%;
   z-index: 2;
 }
 
-.register-form {
-  left: 50%;
-  opacity: 0;
-  z-index: 1;
+.auth-container.show-register .login-form {
+  transform: translateX(100%);
 }
 
-.auth-container.show-register .login-form {
-  left: -50%;
+.register-form {
+  left: 0;
+  width: 50%;
   opacity: 0;
   z-index: 1;
 }
 
 .auth-container.show-register .register-form {
-  left: 50%;
+  transform: translateX(100%);
   opacity: 1;
-  z-index: 2;
+  z-index: 5;
+  animation: show 0.6s;
+}
+
+@keyframes show {
+  0%, 49.99% {
+    opacity: 0;
+    z-index: 1;
+  }
+  50%, 100% {
+    opacity: 1;
+    z-index: 5;
+  }
 }
 
 .auth-form h2 {
-  font-size: 2rem;
-  color: #333;
+  font-weight: bold;
   margin-bottom: 30px;
-  font-weight: 700;
+  color: #3a3a3a;
+  text-align: center;
+  font-size: 2rem;
 }
 
-.input-field {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  background: #eee;
-  border: none;
-  border-left: 4px solid #FF9933;
-  padding: 15px 20px;
-  margin: 10px 0;
-  border-radius: 5px;
-  transition: all 0.3s;
+.input-group {
+  position: relative;
+  margin: 20px 0;
 }
 
-.input-field:focus-within {
-  border-left-color: #1a1a1a;
-  background: #f5f5f5;
-  box-shadow: 0 0 5px rgba(255, 153, 51, 0.2);
-}
-
-.input-field i {
+.input-group i {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
   color: #FF9933;
-  margin-right: 10px;
-  font-size: 1rem;
+  font-size: 18px;
 }
 
-.input-field input {
-  background: none;
-  border: none;
-  outline: none;
-  flex: 1;
-  font-size: 1rem;
-  color: #333;
-  font-family: 'Poppins', sans-serif;
-}
-
-.input-field input::placeholder {
+.input-group .toggle-password {
+  left: auto;
+  right: 20px;
+  cursor: pointer;
   color: #999;
 }
 
-.forgot-link {
-  align-self: flex-start;
-  color: #FF9933;
-  text-decoration: none;
-  font-size: 0.85rem;
-  margin: 10px 0 20px 0;
-  transition: color 0.3s;
-  cursor: pointer;
-}
-
-.forgot-link:hover {
-  color: #1a1a1a;
-  text-decoration: underline;
-}
-
-.btn {
+.input-group input {
+  background: #f0f0f0;
   border: none;
-  border-radius: 20px;
-  padding: 12px 50px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  border-left: 4px solid #FF9933;
+  padding: 15px 20px 15px 55px;
+  width: 100%;
+  font-size: 15px;
+  color: #3a3a3a;
+}
+
+.input-group input:focus {
+  outline: none;
+  background: #e8e8e8;
+}
+
+.input-group input::placeholder {
+  color: #999;
+}
+
+.forgot-password {
+  color: #FF9933;
+  font-size: 14px;
+  margin: 10px 0 20px 0;
   cursor: pointer;
-  transition: all 0.3s;
-  font-family: 'Poppins', sans-serif;
+  text-align: left;
 }
 
 .btn-submit {
-  background: #FF9933;
-  color: white;
+  border-radius: 50px;
+  border: none;
+  background: linear-gradient(to right, #FF9933, #ff7700);
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 15px 45px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  cursor: pointer;
   width: 100%;
-  margin: 15px 0;
+  margin-top: 20px;
 }
 
 .btn-submit:hover {
-  background: #1a1a1a;
+  background: linear-gradient(to right, #ff7700, #FF9933);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(255, 153, 51, 0.3);
 }
@@ -420,175 +384,217 @@ export default {
   transform: translateY(0);
 }
 
-.toggle-text {
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.switch-text {
+  text-align: center;
   margin-top: 20px;
   color: #999;
-  font-size: 0.9rem;
-  text-align: center;
+  font-size: 14px;
 }
 
-.toggle-text a {
+.switch-text a {
   color: #FF9933;
   text-decoration: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: color 0.3s;
+  font-weight: bold;
 }
 
-.toggle-text a:hover {
-  color: #1a1a1a;
+.switch-text a:hover {
   text-decoration: underline;
 }
 
-.overlay-panel {
+.error-message {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #c62828;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.success-message {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #2e7d32;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.overlay-container {
   position: absolute;
   top: 0;
   left: 50%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(135deg, #FF9933 0%, #1a1a1a 100%);
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
+}
+
+.auth-container.show-register .overlay-container {
+  transform: translateX(-100%);
+}
+
+.overlay {
+  background: linear-gradient(135deg, #FF9933 0%, #8B5A3C 50%, #3a3a3a 100%);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
+  color: #fff;
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.auth-container.show-register .overlay {
+  transform: translateX(50%);
+}
+
+.overlay-panel {
+  position: absolute;
   display: flex;
-  justify-content: center;
   align-items: center;
-  color: white;
-  border-radius: 0 15px 15px 0;
-  transition: all 0.6s ease-in-out;
-  z-index: 5;
-}
-
-.auth-container.show-register .overlay-panel {
-  left: 0;
-  border-radius: 15px 0 0 15px;
-}
-
-.overlay-content {
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 40px;
   text-align: center;
-  padding: 40px;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
 }
 
-.overlay-content h3 {
+.overlay-left {
+  transform: translateX(-20%);
+}
+
+.auth-container.show-register .overlay-left {
+  transform: translateX(0);
+}
+
+.overlay-right {
+  right: 0;
+  transform: translateX(0);
+}
+
+.auth-container.show-register .overlay-right {
+  transform: translateX(20%);
+}
+
+.overlay-panel h2 {
+  color: #fff;
+  margin-bottom: 20px;
   font-size: 1.8rem;
-  margin-bottom: 20px;
-  font-weight: 700;
 }
 
-.overlay-content p {
-  font-size: 1rem;
-  line-height: 1.6;
-  margin-bottom: 30px;
-  opacity: 0.9;
+.overlay-panel p {
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 24px;
+  letter-spacing: 0.3px;
+  margin: 20px 0 30px;
 }
 
-.btn-toggle {
+.btn-ghost {
   background: transparent;
-  color: white;
-  border: 2px solid white;
+  border: 2px solid #fff;
+  color: #fff;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 12px 50px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-.btn-toggle:hover {
-  background: white;
-  color: #667eea;
+.btn-ghost:hover {
+  background: #fff;
+  color: #FF9933;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
 }
 
-.error-message {
-  background: #fee;
-  color: #c33;
-  padding: 12px 15px;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  font-size: 0.9rem;
-  width: 100%;
-  text-align: center;
-  border-left: 4px solid #c33;
-}
-
-.success-message {
-  background: #efe;
-  color: #3c3;
-  padding: 12px 15px;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  font-size: 0.9rem;
-  width: 100%;
-  text-align: center;
-  border-left: 4px solid #3c3;
+.btn-ghost:active {
+  transform: translateY(0);
 }
 
 @media (max-width: 768px) {
   .auth-container {
-    height: auto;
+    width: 100%;
     min-height: 600px;
   }
 
   .auth-form {
-    position: relative;
     width: 100%;
-    left: 0 !important;
-    opacity: 1 !important;
-    z-index: 1 !important;
-    padding: 30px 20px;
-    min-height: 400px;
+    padding: 0 30px;
+  }
+
+  .login-form {
+    left: 0;
   }
 
   .register-form {
-    display: none;
+    left: 0;
   }
 
   .auth-container.show-register .login-form {
-    display: none;
+    transform: translateX(-100%);
   }
 
-  .auth-container.show-register .register-form {
-    display: flex;
-    position: relative;
+  .overlay-container {
     left: 0;
-    opacity: 1;
-    z-index: 1;
+    width: 100%;
+    height: 40%;
+    top: auto;
+    bottom: 0;
+  }
+
+  .overlay {
+    left: 0;
+    width: 100%;
+    height: 200%;
+    top: -100%;
+    transform: translateY(0);
+  }
+
+  .auth-container.show-register .overlay {
+    transform: translateY(50%);
   }
 
   .overlay-panel {
-    display: none;
+    width: 100%;
+    height: 50%;
   }
 
-  .auth-form h2 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
+  .overlay-left {
+    transform: translateY(-20%);
   }
 
-  .input-field {
-    padding: 12px 15px;
-    margin: 8px 0;
+  .auth-container.show-register .overlay-left {
+    transform: translateY(0);
   }
 
-  .btn-submit {
-    padding: 10px 40px;
+  .overlay-right {
+    top: 50%;
+    transform: translateY(0);
   }
 
-  .toggle-text {
-    margin-top: 15px;
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .auth-page {
-    padding: 10px;
-  }
-
-  .auth-container {
-    border-radius: 10px;
-  }
-
-  .auth-form {
-    padding: 20px;
-  }
-
-  .auth-form h2 {
-    font-size: 1.3rem;
-  }
-
-  .input-field {
-    font-size: 0.9rem;
+  .auth-container.show-register .overlay-right {
+    transform: translateY(20%);
   }
 }
 </style>
