@@ -12,140 +12,163 @@
     </header>
 
     <div class="agendamento-container">
-      <h1 class="page-title">📅 Agendamento de Quadras</h1>
+      <h1 class="page-title">📅 {{ currentUser?.isAdmin ? 'Visualização de Agendamentos' : 'Agendamento de Quadras' }}</h1>
 
-      <section class="quadras-section">
-        <h2>Selecione as Quadras</h2>
-        <div class="quadras-grid">
-          <div
-            v-for="quadra in quadras"
-            :key="quadra.id"
-            class="quadra-card"
-            :class="{ selected: selectedQuadras.includes(quadra.id) }"
-            @click="toggleQuadra(quadra.id)"
-          >
-            <div class="quadra-checkbox">
-              <input
-                type="checkbox"
-                :checked="selectedQuadras.includes(quadra.id)"
-                @change="toggleQuadra(quadra.id)"
-              >
+      <template v-if="!currentUser?.isAdmin">
+        <section class="quadras-section">
+          <h2>Selecione as Quadras</h2>
+          <div class="quadras-grid">
+            <div
+              v-for="quadra in quadras"
+              :key="quadra.id"
+              class="quadra-card"
+              :class="{ selected: selectedQuadras.includes(quadra.id) }"
+              @click="toggleQuadra(quadra.id)"
+            >
+              <div class="quadra-checkbox">
+                <input
+                  type="checkbox"
+                  :checked="selectedQuadras.includes(quadra.id)"
+                  @change="toggleQuadra(quadra.id)"
+                >
+              </div>
+              <h3>{{ quadra.nome }}</h3>
+              <p>Clique para selecionar</p>
             </div>
-            <h3>{{ quadra.nome }}</h3>
-            <p>Clique para selecionar</p>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="calendario-section">
-        <h2>Selecione Data e Horário</h2>
+        <section class="calendario-section">
+          <h2>Selecione Data e Horário</h2>
 
-        <div class="week-navigation">
-          <button @click="previousWeek" class="btn-nav">← Semana Anterior</button>
-          <span class="week-display">{{ formatWeekRange() }}</span>
-          <button @click="nextWeek" class="btn-nav">Próxima Semana →</button>
-        </div>
-
-        <div class="calendario-grid">
-          <div class="day-header">Horário</div>
-          <div
-            v-for="day in weekDays"
-            :key="day.date"
-            class="day-header"
-          >
-            <div class="day-name">{{ day.dayName }}</div>
-            <div class="day-date">{{ day.dateStr }}</div>
+          <div class="week-navigation">
+            <button @click="previousWeek" class="btn-nav">← Semana Anterior</button>
+            <span class="week-display">{{ formatWeekRange() }}</span>
+            <button @click="nextWeek" class="btn-nav">Próxima Semana →</button>
           </div>
 
-          <!-- Horários -->
-          <template v-for="hora in horarios" :key="hora">
-            <div class="time-slot">{{ formatHour(hora) }}</div>
+          <div class="calendario-grid">
+            <div class="day-header">Horário</div>
             <div
               v-for="day in weekDays"
-              :key="`${day.date}-${hora}`"
-              class="slot-cell"
-              :class="getSlotClass(day.date, hora)"
-              @click="selectSlot(day.date, hora)"
+              :key="day.date"
+              class="day-header"
             >
-              <div class="slot-content">
-                <div class="slot-price">R$ {{ getPrice(hora).toFixed(2) }}</div>
-                <div class="slot-status">{{ getSlotStatus(day.date, hora) }}</div>
-              </div>
+              <div class="day-name">{{ day.dayName }}</div>
+              <div class="day-date">{{ day.dateStr }}</div>
             </div>
-          </template>
-        </div>
-      </section>
 
-      <section v-if="selectedSlot" class="resumo-section">
-        <h2>Resumo do Agendamento</h2>
-        <div class="resumo-card">
-          <div class="resumo-item">
-            <strong>Data:</strong> {{ formatDate(selectedSlot.date) }}
+            <template v-for="hora in horarios" :key="hora">
+              <div class="time-slot">{{ formatHour(hora) }}</div>
+              <div
+                v-for="day in weekDays"
+                :key="`${day.date}-${hora}`"
+                class="slot-cell"
+                :class="getSlotClass(day.date, hora)"
+                @click="selectSlot(day.date, hora)"
+              >
+                <div class="slot-content">
+                  <div class="slot-price">R$ {{ getPrice(hora).toFixed(2) }}</div>
+                  <div class="slot-status">{{ getSlotStatus(day.date, hora) }}</div>
+                </div>
+              </div>
+            </template>
           </div>
-          <div class="resumo-item">
-            <strong>Horário:</strong> {{ formatHour(selectedSlot.hora) }}
-          </div>
-          <div class="resumo-item">
-            <strong>Quadras:</strong> {{ getSelectedQuadrasNames() }}
-          </div>
-          <div class="resumo-item">
-            <strong>Preço por quadra:</strong> R$ {{ getPrice(selectedSlot.hora).toFixed(2) }}
-          </div>
-          <div class="resumo-item total">
-            <strong>Total:</strong> R$ {{ calculateTotal().toFixed(2) }}
-          </div>
+        </section>
 
-          <div class="observacoes">
-            <label>Observações (opcional):</label>
-            <textarea
-              v-model="observacoes"
-              placeholder="Digite suas observações aqui..."
-              rows="3"
-            ></textarea>
-          </div>
+        <section v-if="selectedSlot" class="resumo-section">
+          <h2>Resumo do Agendamento</h2>
+          <div class="resumo-card">
+            <div class="resumo-item">
+              <strong>Data:</strong> {{ formatDate(selectedSlot.date) }}
+            </div>
+            <div class="resumo-item">
+              <strong>Horário:</strong> {{ formatHour(selectedSlot.hora) }}
+            </div>
+            <div class="resumo-item">
+              <strong>Quadras:</strong> {{ getSelectedQuadrasNames() }}
+            </div>
+            <div class="resumo-item">
+              <strong>Preço por quadra:</strong> R$ {{ getPrice(selectedSlot.hora).toFixed(2) }}
+            </div>
+            <div class="resumo-item total">
+              <strong>Total:</strong> R$ {{ calculateTotal().toFixed(2) }}
+            </div>
 
-          <button
-            class="btn-confirmar"
-            @click="confirmarAgendamento"
-            :disabled="isLoading || selectedQuadras.length === 0"
-          >
-            {{ isLoading ? 'Processando...' : 'Confirmar Agendamento' }}
-          </button>
-        </div>
-      </section>
+            <div class="observacoes">
+              <label>Observações (opcional):</label>
+              <textarea
+                v-model="observacoes"
+                placeholder="Digite suas observações aqui..."
+                rows="3"
+              ></textarea>
+            </div>
+
+            <button
+              class="btn-confirmar"
+              @click="confirmarAgendamento"
+              :disabled="isLoading || selectedQuadras.length === 0"
+            >
+              {{ isLoading ? 'Processando...' : 'Confirmar Agendamento' }}
+            </button>
+          </div>
+        </section>
+      </template>
 
       <section class="meus-agendamentos-section">
-        <h2>Meus Agendamentos</h2>
-        <div v-if="loadingAgendamentos" class="loading">Carregando...</div>
-        <div v-else-if="agendamentos.length === 0" class="no-agendamentos">
-          <p>Você ainda não possui agendamentos.</p>
-        </div>
-        <div v-else class="agendamentos-list">
-          <div
-            v-for="agendamento in agendamentos"
-            :key="agendamento.id"
-            class="agendamento-card"
-            :class="{ cancelado: agendamento.status === 'cancelado' }"
-          >
-            <div class="agendamento-info">
-              <div class="agendamento-date">{{ formatDate(agendamento.data) }} - {{ formatHour(agendamento.hora) }}</div>
-              <div class="agendamento-quadras">{{ agendamento.quadraNomes.join(', ') }}</div>
-              <div class="agendamento-price">R$ {{ agendamento.precoTotal.toFixed(2) }}</div>
-              <div class="agendamento-status">Status: {{ agendamento.status }}</div>
-              <div v-if="agendamento.observacoes" class="agendamento-obs">Obs: {{ agendamento.observacoes }}</div>
-            </div>
-            <div class="agendamento-actions">
-              <button
-                v-if="agendamento.status === 'confirmado'"
-                @click="cancelarAgendamento(agendamento.id)"
-                class="btn-cancelar"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+   <div class="section-header">
+     <h2>{{ currentUser?.isAdmin ? 'Agendamentos Confirmados' : 'Meus Agendamentos' }}</h2>
+     
+     <button 
+       @click="limparHistorico" 
+       class="btn-limpar-historico"
+       :disabled="loadingAgendamentos || agendamentos.length === 0"
+     >
+       🗑️ Limpar Histórico
+     </button>
+   </div>
+   
+   <div v-if="loadingAgendamentos" class="loading">Carregando...</div>
+   <div v-else-if="agendamentos.length === 0" class="no-agendamentos">
+     <p>{{ currentUser?.isAdmin ? 'Nenhum agendamento confirmado no sistema.' : 'Você ainda não possui agendamentos.' }}</p>
+   </div>
+   <div v-else class="agendamentos-list">
+     <div
+       v-for="agendamento in agendamentos"
+       :key="agendamento.id"
+       class="agendamento-card"
+       :class="{ cancelado: agendamento.status === 'cancelado' }"
+     >
+       <div class="agendamento-info">
+         <div v-if="currentUser?.isAdmin" class="agendamento-usuario">
+           👤 Cliente: <strong>{{ agendamento.userName || 'Usuário Desconhecido' }}</strong>
+         </div>
+         <div class="agendamento-date">{{ formatDate(agendamento.data) }} - {{ formatHour(agendamento.hora) }}</div>
+         <div class="agendamento-quadras">{{ agendamento.quadraNomes.join(', ') }}</div>
+         <div class="agendamento-price">R$ {{ agendamento.precoTotal.toFixed(2) }}</div>
+         <div class="agendamento-status">Status: {{ agendamento.status }}</div>
+         <div v-if="agendamento.observacoes" class="agendamento-obs">Obs: {{ agendamento.observacoes }}</div>
+         
+         <button 
+           v-if="!currentUser?.isAdmin && agendamento.status === 'confirmado'"
+           @click="fazerPagamento(agendamento)"
+           class="btn-pagamento"
+         >
+           💳 Faça o Pagamento
+         </button>
+       </div>
+       <div class="agendamento-actions">
+         <button
+           v-if="!currentUser?.isAdmin && agendamento.status === 'confirmado'"
+           @click="cancelarAgendamento(agendamento.id)"
+           class="btn-cancelar"
+         >
+           Cancelar
+         </button>
+       </div>
+     </div>
+   </div>
+ </section>
     </div>
 
     <div v-if="showModal" class="modal-overlay" @click="closeModal">
@@ -159,6 +182,8 @@
 </template>
 
 <script>
+import dbService from '@/services/db.js'
+
 export default {
   name: 'AgendamentoView',
   data() {
@@ -174,14 +199,11 @@ export default {
       ],
       selectedQuadras: [],
       currentWeekStart: new Date(),
-      horarios: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-      horariosConfig: {
-        inicio: 8,
-        fim: 23
-      },
+      horarios: [16, 17, 18, 19, 20, 21, 22],
       selectedSlot: null,
       observacoes: '',
       agendamentos: [],
+      todosAgendamentos: [],
       loadingAgendamentos: false,
       isLoading: false,
       showModal: false,
@@ -210,13 +232,22 @@ export default {
     }
   },
 
-  mounted() {
-    this.verifyAuth()
-    this.loadAgendamentos()
+  async mounted() {
+    await this.verifyAuth()
+    await this.loadAgendamentos()
     this.setCurrentWeek()
   },
 
   methods: {
+    async verifyAuth() {
+      const user = this.getFromLocalStorage('user')
+      if (!user) {
+        this.$router.push('/auth')
+        return
+      }
+      this.currentUser = user
+    },
+
     getFromLocalStorage(key) {
       try {
         const data = localStorage.getItem(key)
@@ -227,59 +258,70 @@ export default {
       }
     },
 
-    saveToLocalStorage(key, data) {
-      try {
-        localStorage.setItem(key, JSON.stringify(data))
-        return true
-      } catch (error) {
-        console.error('Erro ao salvar no localStorage:', error)
-        return false
-      }
-    },
+    async loadAgendamentos() {
+  this.loadingAgendamentos = true
 
-    verifyAuth() {
-      const user = this.getFromLocalStorage('user')
-      if (!user) {
-        this.$router.push('/auth')
-        return
-      }
-      this.currentUser = user
-    },
+  try {
+    if (this.currentUser.isAdmin) {
+      const todosAgendamentos = await dbService.getAllAgendamentos()
+      const confirmados = todosAgendamentos.filter(ag => ag.status === 'confirmado')
+      
+      const agendamentosComNomes = await Promise.all(
+        confirmados.map(async (ag) => {
+          try {
+            const user = await dbService.getUserById(ag.userId)
+            return {
+              ...ag,
+              userName: user ? user.name : 'Usuário Desconhecido'
+            }
+          } catch (error) {
+            return {
+              ...ag,
+              userName: 'Usuário Desconhecido'
+            }
+          }
+        })
+      )
 
-    loadAgendamentos() {
-      this.loadingAgendamentos = true
+      this.agendamentos = agendamentosComNomes.sort((a, b) => {
+        const dateA = new Date(a.data + 'T' + a.hora)
+        const dateB = new Date(b.data + 'T' + b.hora)
+        return dateB - dateA
+      })
 
-      try {
-        const allAgendamentos = this.getFromLocalStorage('agendamentos') || []
-        this.agendamentos = allAgendamentos
-          .filter(ag => ag.userId === this.currentUser.id)
-          .sort((a, b) => {
-            const dateA = new Date(a.data + 'T' + a.hora)
-            const dateB = new Date(b.data + 'T' + b.hora)
-            return dateB - dateA
-          })
-      } catch (error) {
-        console.error('Erro ao carregar agendamentos:', error)
-        this.agendamentos = []
-      } finally {
-        this.loadingAgendamentos = false
-      }
-    },
+      this.todosAgendamentos = todosAgendamentos
+    } 
+    else {
+      const userAgendamentos = await dbService.getAgendamentosByUserId(this.currentUser.id)
+      
+      this.agendamentos = userAgendamentos.sort((a, b) => {
+        const dateA = new Date(a.data + 'T' + a.hora)
+        const dateB = new Date(b.data + 'T' + b.hora)
+        return dateB - dateA
+      })
 
-    isSlotAvailable(date, hora) {
+      this.todosAgendamentos = await dbService.getAllAgendamentos()
+    }
+  } catch (error) {
+    console.error('Erro ao carregar agendamentos:', error)
+    this.showErrorModal('Erro', 'Não foi possível carregar os agendamentos')
+    this.agendamentos = []
+    this.todosAgendamentos = []
+  } finally {
+    this.loadingAgendamentos = false
+  }
+},
+    
+    isSlotOccupied(date, hora) {
       if (this.selectedQuadras.length === 0) return false
 
-      const allAgendamentos = this.getFromLocalStorage('agendamentos') || []
       const horaString = `${hora.toString().padStart(2, '0')}:00`
 
-      return this.selectedQuadras.every(quadraId => {
-        const conflito = allAgendamentos.some(ag =>
-          ag.data === date &&
-          ag.hora === horaString &&
-          ag.quadraIds.includes(quadraId) &&
-          ag.status === 'confirmado'
-        )
-        return !conflito
+      return this.todosAgendamentos.some(ag => {
+        if (ag.data === date && ag.hora === horaString && ag.status === 'confirmado') {
+          return ag.quadraIds.some(quadraId => this.selectedQuadras.includes(quadraId))
+        }
+        return false
       })
     },
 
@@ -289,16 +331,13 @@ export default {
       this.isLoading = true
 
       try {
-        const allAgendamentos = this.getFromLocalStorage('agendamentos') || []
         const horaString = `${this.selectedSlot.hora.toString().padStart(2, '0')}:00`
-        const hasConflict = this.selectedQuadras.some(quadraId => {
-          return allAgendamentos.some(ag =>
-            ag.data === this.selectedSlot.date &&
-            ag.hora === horaString &&
-            ag.quadraIds.includes(quadraId) &&
-            ag.status === 'confirmado'
-          )
-        })
+        
+        const hasConflict = await dbService.checkConflict(
+          this.selectedSlot.date, 
+          horaString, 
+          this.selectedQuadras
+        )
 
         if (hasConflict) {
           this.showErrorModal('Erro no agendamento', 'Uma ou mais quadras já estão ocupadas neste horário.')
@@ -320,8 +359,7 @@ export default {
           criadoEm: new Date().toISOString()
         }
 
-        allAgendamentos.push(novoAgendamento)
-        this.saveToLocalStorage('agendamentos', allAgendamentos)
+        await dbService.createAgendamento(novoAgendamento)
 
         this.showSuccessModal('Agendamento confirmado!', 'Seu agendamento foi realizado com sucesso.')
 
@@ -329,7 +367,7 @@ export default {
         this.selectedQuadras = []
         this.observacoes = ''
 
-        this.loadAgendamentos()
+        await this.loadAgendamentos()
       } catch (error) {
         console.error('Erro ao confirmar agendamento:', error)
         this.showErrorModal('Erro no agendamento', 'Erro ao processar agendamento')
@@ -338,20 +376,74 @@ export default {
       }
     },
 
-    cancelarAgendamento(agendamentoId) {
+    async limparHistorico() {
+  const mensagem = this.currentUser.isAdmin
+    ? 'Isso irá deletar TODOS os agendamentos que já passaram. Confirma?'
+    : 'Isso irá deletar seus agendamentos cancelados e que já passaram. Confirma?'
+  
+  if (!confirm(mensagem)) return
+
+  this.isLoading = true
+
+  try {
+    let deletados = 0
+
+    if (this.currentUser.isAdmin) {
+      deletados = await dbService.limparHistoricoGeral()
+    } else {
+      deletados = await dbService.limparHistoricoUsuario(this.currentUser.id)
+    }
+
+    this.showSuccessModal(
+      'Histórico limpo!', 
+      `${deletados} agendamento(s) foram deletados.`
+    )
+
+    await this.loadAgendamentos()
+  } catch (error) {
+    console.error('Erro ao limpar histórico:', error)
+    this.showErrorModal('Erro', 'Não foi possível limpar o histórico')
+  } finally {
+    this.isLoading = false
+  }
+},
+
+fazerPagamento(agendamento) {
+  const userName = this.currentUser.name
+  const quadras = agendamento.quadraNomes.join(', ')
+  const data = this.formatDate(agendamento.data)
+  const hora = agendamento.hora
+  const valor = agendamento.precoTotal.toFixed(2)
+  
+  const message = `Olá! Meu nome é ${userName}.
+
+Gostaria de saber as formas de pagamento para o seguinte agendamento:
+
+📅 Data: ${data}
+🕐 Horário: ${hora}
+🏐 Quadra(s): ${quadras}
+💰 Valor: R$ ${valor}
+
+Aguardo retorno!`
+  
+  const whatsapp = '5586995797982'
+  const url = `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}`
+  window.open(url, '_blank')
+},
+
+    async cancelarAgendamento(agendamentoId) {
       if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return
 
       try {
-        const allAgendamentos = this.getFromLocalStorage('agendamentos') || []
-
-        const agendamentoIndex = allAgendamentos.findIndex(ag => ag.id === agendamentoId)
-
-        if (agendamentoIndex !== -1) {
-          allAgendamentos[agendamentoIndex].status = 'cancelado'
-          this.saveToLocalStorage('agendamentos', allAgendamentos)
+        const agendamento = await dbService.getAgendamentoById(agendamentoId)
+        
+        if (agendamento) {
+          agendamento.status = 'cancelado'
+          await dbService.updateAgendamento(agendamento)
 
           this.showSuccessModal('Agendamento cancelado', 'Seu agendamento foi cancelado com sucesso.')
-          this.loadAgendamentos()
+          
+          await this.loadAgendamentos()
         }
       } catch (error) {
         console.error('Erro ao cancelar agendamento:', error)
@@ -402,7 +494,15 @@ export default {
     },
 
     selectSlot(date, hora) {
-      if (this.selectedQuadras.length === 0 || !this.isSlotAvailable(date, hora)) return
+      if (this.selectedQuadras.length === 0) {
+        this.showErrorModal('Selecione as quadras', 'Por favor, selecione pelo menos uma quadra antes de escolher o horário.')
+        return
+      }
+      
+      if (this.isSlotOccupied(date, hora)) {
+        this.showErrorModal('Horário indisponível', 'Uma ou mais quadras selecionadas já estão ocupadas neste horário.')
+        return
+      }
 
       this.selectedSlot = { date, hora }
     },
@@ -410,14 +510,14 @@ export default {
     getSlotClass(date, hora) {
       if (this.selectedQuadras.length === 0) return 'disabled'
 
-      const isAvailable = this.isSlotAvailable(date, hora)
+      const isOccupied = this.isSlotOccupied(date, hora)
       const isSelected = this.selectedSlot &&
         this.selectedSlot.date === date &&
         this.selectedSlot.hora === hora
 
       return {
-        available: isAvailable,
-        unavailable: !isAvailable,
+        available: !isOccupied,
+        unavailable: isOccupied,
         selected: isSelected,
         disabled: this.selectedQuadras.length === 0
       }
@@ -425,7 +525,12 @@ export default {
 
     getSlotStatus(date, hora) {
       if (this.selectedQuadras.length === 0) return 'Selecione quadras'
-      return this.isSlotAvailable(date, hora) ? 'Disponível' : 'Ocupado'
+      
+      if (this.isSlotOccupied(date, hora)) {
+        return 'Ocupado'
+      }
+      
+      return 'Disponível'
     },
 
     formatHour(hora) {
@@ -463,8 +568,6 @@ export default {
       this.showModal = false
     },
 
-    // ========== LOGOUT ==========
-
     handleLogout() {
       if (confirm('Deseja realmente deslogar?')) {
         localStorage.removeItem('token')
@@ -481,6 +584,74 @@ export default {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+.agendamento-usuario {
+  background: #e3f2fd;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.8rem;
+  color: #1976d2;
+  font-size: 0.95rem;
+  border-left: 3px solid #1976d2;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.btn-limpar-historico {
+  background: linear-gradient(to right, #ff6b6b, #ee5a52);
+  color: white;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-limpar-historico:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+}
+
+.btn-limpar-historico:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.agendamento-usuario {
+  background: #e3f2fd;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.8rem;
+  color: #1976d2;
+  font-size: 0.95rem;
+  border-left: 3px solid #1976d2;
+}
+
+.btn-pagamento {
+  background: linear-gradient(to right, #25D366, #20BA5A);
+  color: white;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.btn-pagamento:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
 }
 
 .agendamento-page {

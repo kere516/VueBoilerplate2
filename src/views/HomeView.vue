@@ -21,7 +21,7 @@
     <section class="hero" id="home">
       <div class="hero-content">
         <img
-          src="https://media.istockphoto.com/id/1325602124/pt/foto/beach-volleyball-court-with-a-volleyball-ball-placed-in-the-sand.jpg?b=1&s=612x612&w=0&k=20&c=8KaviRau22VOBUZWPubuQDpNbRI7tzRcs2YKdj_QQR0="
+          src="/images/bola.jpeg"
           alt="Beach Court"
           class="hero-image"
         >
@@ -156,12 +156,6 @@
             </ul>
           </div>
 
-          <div class="modal-payment">
-            <h3>Pronto para reservar?</h3>
-            <button class="whatsapp-btn" @click="contactWhatsApp(selectedCourt)">
-              <span>💬</span> Falar com Responsável
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -233,6 +227,8 @@
 </template>
 
 <script>
+import dbService from '@/services/db.js'
+
 export default {
   name: 'HomeView',
   data() {
@@ -373,9 +369,9 @@ export default {
     }
   },
 
-  mounted() {
-    this.verifyAuth()
-    this.fetchAvisos()
+  async mounted() {
+    await this.verifyAuth()
+    await this.fetchAvisos()
   },
 
   methods: {
@@ -388,21 +384,19 @@ export default {
       }
 
       try {
-        const response = await fetch('http://localhost:5000/api/auth/verify', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
+        const decoded = atob(token).split(':')
+        const userId = parseInt(decoded[0])
 
-        if (!response.ok) {
-          throw new Error('Token inválido')
+        const user = await dbService.getUserById(userId)
+
+        if (!user) {
+          throw new Error('Usuário não encontrado')
         }
 
-        const data = await response.json()
-        this.currentUser = data.user
+        this.currentUser = user
 
-      } catch {
+      } catch (error) {
+        console.error('Erro na verificação:', error)
         localStorage.removeItem('token')
         localStorage.removeItem('user')
         this.$router.push('/auth')
@@ -413,15 +407,7 @@ export default {
       this.loadingAvisos = true
 
       try {
-        const response = await fetch('http://localhost:5000/api/avisos')
-
-        if (!response.ok) {
-          throw new Error('Erro ao buscar avisos')
-        }
-
-        const data = await response.json()
-        this.avisos = data
-
+        this.avisos = await dbService.getAllAvisos()
       } catch (error) {
         console.error('Erro ao carregar avisos:', error)
       } finally {
@@ -434,26 +420,13 @@ export default {
       this.avisoSuccess = ''
       this.isCreatingAviso = true
 
-      const token = localStorage.getItem('token')
-
       try {
-        const response = await fetch('http://localhost:5000/api/avisos', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            titulo: this.novoAviso.titulo,
-            descricao: this.novoAviso.descricao
-          })
-        })
-
-        const data = await response.json()
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Erro ao criar aviso')
-        }
+        await dbService.createAviso(
+          this.novoAviso.titulo,
+          this.novoAviso.descricao,
+          this.currentUser.id,
+          this.currentUser.name
+        )
 
         this.avisoSuccess = 'Aviso criado com sucesso!'
         this.novoAviso.titulo = ''
@@ -477,22 +450,9 @@ export default {
         return
       }
 
-      const token = localStorage.getItem('token')
-
       try {
-        const response = await fetch(`http://localhost:5000/api/avisos/${avisoId}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-
-        if (!response.ok) {
-          throw new Error('Erro ao deletar aviso')
-        }
-
+        await dbService.deleteAviso(avisoId)
         await this.fetchAvisos()
-
       } catch (error) {
         alert('Erro ao deletar aviso: ' + error.message)
       }
@@ -684,6 +644,7 @@ h1 {
   margin-bottom: 1.5rem;
   color: #1a1a1a;
   font-weight: 700;
+  text-align: center;
 }
 
 .subtitle {
@@ -691,6 +652,7 @@ h1 {
   color: #ff9933;
   margin-bottom: 2rem;
   font-weight: 600;
+  text-align: center;
 }
 
 .lorem-text {

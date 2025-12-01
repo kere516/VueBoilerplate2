@@ -124,6 +124,8 @@
 </template>
 
 <script>
+import dbService from '@/services/db.js'
+
 export default {
   name: 'AuthView',
   data() {
@@ -148,25 +150,13 @@ export default {
       this.isLoading = true
 
       try {
-        const response = await fetch('http://localhost:5000/api/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            email: this.signInEmail,
-            password: this.signInPassword
-          })
-        })
+        const user = await dbService.login(this.signInEmail, this.signInPassword)
 
-        const data = await response.json()
+        // Cria um token simples (em produção use JWT)
+        const token = btoa(`${user.id}:${user.email}:${Date.now()}`)
 
-        if (!response.ok) {
-          throw new Error(data.message || 'Erro ao fazer login')
-        }
-
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
+        localStorage.setItem('token', token)
+        localStorage.setItem('user', JSON.stringify(user))
 
         this.$router.push('/home')
 
@@ -183,23 +173,11 @@ export default {
       this.isLoading = true
 
       try {
-        const response = await fetch('http://localhost:5000/api/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            name: this.signUpName,
-            email: this.signUpEmail,
-            password: this.signUpPassword
-          })
-        })
-
-        const data = await response.json()
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Erro ao cadastrar')
-        }
+        await dbService.register(
+          this.signUpName,
+          this.signUpEmail,
+          this.signUpPassword
+        )
 
         this.signUpSuccess = 'Cadastro realizado! Redirecionando para login...'
 
